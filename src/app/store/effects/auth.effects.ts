@@ -21,7 +21,16 @@ export class AuthEffects {
     this.actions$.pipe(
       ofType(AuthActions.login),
       switchMap((action) =>
-        this.authService.login(action.email, action.password)
+        this.authService.login(action.email, action.password).pipe(
+          map((user) =>
+            AuthActions.login_success({
+              uid: user.uid,
+              name: user.displayName,
+              email: user.email,
+              photo: user.photoURL,
+            })
+          )
+        )
       )
     )
   );
@@ -38,7 +47,9 @@ export class AuthEffects {
   userLogout$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.logout),
-      switchMap(() => this.authService.logout())
+      switchMap(() =>
+        this.authService.logout().pipe(map(() => AuthActions.logout_success()))
+      )
     )
   );
 
@@ -57,7 +68,20 @@ export class AuthEffects {
   userAutoLogin$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.auto_login),
-      switchMap(() => this.authService.autoLogin())
+      switchMap(() =>
+        this.authService.autoLogin().pipe(
+          map((user) =>
+            AuthActions.login_success({
+              name: user.displayName,
+              uid: user.uid,
+              email: user.email,
+              photo:
+                user.photoURL ??
+                'https://firebasestorage.googleapis.com/v0/b/cosmo-chat-bf694.appspot.com/o/avatars%2F-C3JhGfgsIg.jpg?alt=media&token=9749bbbb-ede3-42df-9619-b68fe461b161',
+            })
+          )
+        )
+      )
     )
   );
 
@@ -65,11 +89,16 @@ export class AuthEffects {
     this.actions$.pipe(
       ofType(AuthActions.registration),
       switchMap((action) =>
-        this.authService.registration(
-          action.name,
-          action.email,
-          action.password
-        )
+        this.authService
+          .registration(action.name, action.email, action.password)
+          .pipe(
+            map((user) =>
+              AuthActions.registration_success({
+                email: action.email,
+                password: action.password,
+              })
+            )
+          )
       )
     )
   );
@@ -77,14 +106,31 @@ export class AuthEffects {
   userRegistrationSuccess$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.registration_success),
-      switchMap((action) => this.authService.autoLogin())
+      switchMap((action) =>
+        this.authService.autoLogin().pipe(
+          map((user) =>
+            AuthActions.login_success({
+              name: user.displayName,
+              uid: user.uid,
+              email: user.email,
+              photo:
+                user.photoURL ??
+                'https://firebasestorage.googleapis.com/v0/b/cosmo-chat-bf694.appspot.com/o/avatars%2F-C3JhGfgsIg.jpg?alt=media&token=9749bbbb-ede3-42df-9619-b68fe461b161',
+            })
+          )
+        )
+      )
     )
   );
 
   changeAvatar$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.change_avatar),
-      switchMap((action) => this.authService.updateAvatar(action.file))
+      switchMap((action) =>
+        this.authService
+          .updateAvatar(action.file)
+          .pipe(map((ref) => AuthActions.change_avatar_success({ ref: ref })))
+      )
     )
   );
 }
