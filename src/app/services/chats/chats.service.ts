@@ -1,3 +1,4 @@
+import { Chat } from './../../model/chat';
 import { Injectable } from '@angular/core';
 import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
 import { Store } from '@ngrx/store';
@@ -9,9 +10,27 @@ import { map, switchMap, mergeMap } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class ChatsService {
-  constructor(
-    private angularFirestore: AngularFirestore
-  ) {}
+  constructor(private angularFirestore: AngularFirestore) {}
+
+  loadChats(uid: string): Observable<Chat[]> {
+    return this.angularFirestore
+      .collection('chats')
+      .doc(uid)
+      .collection('interlocutor')
+      .snapshotChanges()
+      .pipe(
+        map((snapshot) =>
+          snapshot.map(
+            (interlocutor) =>
+              new Chat({
+                interlocutorUid: interlocutor.payload.doc.id,
+                interlocutorName: '',
+                lastMessage: '',
+              })
+          )
+        )
+      );
+  }
 
   addMessage(
     message: string,
@@ -22,9 +41,9 @@ export class ChatsService {
       this.angularFirestore
         .collection('chats')
         .doc(uid)
-        .collection('sent')
+        .collection('interlocutor')
         .doc(receiverUid)
-        .collection('messages')
+        .collection('sent')
         .add({ message: message })
     ).pipe(
       switchMap((sentDoc) =>
@@ -32,9 +51,9 @@ export class ChatsService {
           this.angularFirestore
             .collection('chats')
             .doc(receiverUid)
-            .collection('received')
+            .collection('interlocutor')
             .doc(uid)
-            .collection('messages')
+            .collection('received')
             .add({ message: message })
         )
       )

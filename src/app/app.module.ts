@@ -22,7 +22,7 @@ import { ChatsComponent } from './components/home/chats/chats.component';
 import { RegistrationComponent } from './components/registration/registration.component';
 import { ChatComponent } from './components/home/chats/chat/chat.component';
 import { FriendsComponent } from './components/home/friends/friends.component';
-import { FriendComponent } from './components/friends/friend/friend.component';
+import { FriendComponent } from './components/home/friends/friend/friend.component';
 
 @NgModule({
   declarations: [

@@ -1,1 +1,5 @@
-<p>friends works!</p>
+<section fxFlex>
+  <mat-nav-list>
+    <app-friend *ngFor="let friend of friends$ | async" [friend]="friend"></app-friend>
+  </mat-nav-list>
+</section>

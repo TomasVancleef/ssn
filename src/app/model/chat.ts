@@ -1,5 +1,11 @@
 export class Chat {
-  uid: string;
-  receiverUid: string;
-  message: string;
+  interlocutorUid: string;
+  interlocutorName: string;
+  lastMessage: string;
+
+  constructor({interlocutorUid, interlocutorName, lastMessage}) {
+    this.interlocutorUid = interlocutorUid;
+    this.interlocutorName = interlocutorName;
+    this.lastMessage = lastMessage;
+  }
 }

@@ -1,9 +1,5 @@
 <section fxFlex>
   <mat-nav-list>
-    <app-chat></app-chat>
-    <app-chat></app-chat>
-    <app-chat></app-chat>
-    <app-chat></app-chat>
-    <app-chat></app-chat>
+    <app-chat *ngFor="let chat of chats$ | async" [interlocutorUid]="chat.interlocutorUid"></app-chat>
   </mat-nav-list>
 </section>
