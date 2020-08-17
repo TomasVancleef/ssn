@@ -1,0 +1,34 @@
+<svg id="Компонент_1_1" data-name="Компонент 1 – 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="145.5" height="248.5" viewBox="0 0 145.5 248.5">
+  <defs>
+    <filter id="S" x="0" y="49" width="70.5" height="163.5" filterUnits="userSpaceOnUse">
+      <feOffset dx="3" dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="0.5" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="S-2" x="33" y="0" width="70.5" height="163.5" filterUnits="userSpaceOnUse">
+      <feOffset dx="3" dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="0.5" result="blur-2"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-2"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="N" x="43" y="85" width="102.5" height="163.5" filterUnits="userSpaceOnUse">
+      <feOffset dx="3" dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="0.5" result="blur-3"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-3"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#S)">
+    <text id="S-3" data-name="S" transform="translate(0 178)" fill="#fff" font-size="120" font-family="SegoeUI-BoldItalic, Segoe UI" font-weight="700" font-style="italic"><tspan x="0" y="0">S</tspan></text>
+  </g>
+  <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#S-2)">
+    <text id="S-4" data-name="S" transform="translate(33 129)" fill="#fff" font-size="120" font-family="SegoeUI-BoldItalic, Segoe UI" font-weight="700" font-style="italic"><tspan x="0" y="0">S</tspan></text>
+  </g>
+  <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#N)">
+    <text id="N-2" data-name="N" transform="translate(43 214)" fill="#fff" font-size="120" font-family="SegoeUI-BoldItalic, Segoe UI" font-weight="700" font-style="italic"><tspan x="0" y="0">N</tspan></text>
+  </g>
+</svg>

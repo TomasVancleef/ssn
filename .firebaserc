@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "cosmo-chat-bf694": {
+      "hosting": {
+        "ssn": [
+          "cosmo-chat-bf694"
+        ]
+      }
+    }
+  }
+}

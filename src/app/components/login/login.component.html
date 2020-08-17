@@ -1,0 +1,27 @@
+<section fxLayout="column" fxLayoutAlign="center center">
+  <mat-card>
+    <form
+      #f="ngForm"
+      (ngSubmit)="login(f)"
+      fxLayout="column"
+      fxLayoutAlign="center center"
+      fxLayoutGap="10px"
+    >
+      <mat-form-field>
+        <input matInput type="text" ngModel name="email" placeholder="Email" required/>
+      </mat-form-field>
+      <mat-form-field>
+        <input
+          matInput
+          type="password"
+          ngModel
+          name="password"
+          placeholder="Пароль"
+          required
+        />
+      </mat-form-field>
+      <button mat-raised-button color="primary">Войти</button>
+      <a [routerLink]="['/registration']">Регистрация</a>
+    </form>
+  </mat-card>
+</section>

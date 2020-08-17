@@ -1,0 +1,20 @@
+<mat-drawer-container (backdropClick)="closeSidenav()">
+  <mat-drawer mode="over" [opened]="opened | async" disableClose>
+    <app-sidemenu></app-sidemenu>
+  </mat-drawer>
+  <mat-drawer-content>
+    <button mat-fab class="mat-fab-bottom-right">
+      <mat-icon>message</mat-icon>
+    </button>
+    <app-toolbar></app-toolbar>
+    <mat-tab-group mat-align-tabs="center">
+      <mat-tab label="Профиль">
+        <app-user></app-user>
+      </mat-tab>
+      <mat-tab label="Сообщения">
+        <app-chats></app-chats>
+      </mat-tab>
+      <mat-tab label="Друзья">Друзья</mat-tab>
+    </mat-tab-group>
+  </mat-drawer-content>
+</mat-drawer-container>
