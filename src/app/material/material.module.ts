@@ -20,7 +20,7 @@ const modules = [
   MatIconModule,
   MatListModule,
   MatDividerModule,
-  MatTabsModule
+  MatTabsModule,
 ];
 
 @NgModule({

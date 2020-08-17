@@ -16,7 +16,6 @@ export class FriendsComponent implements OnInit {
   constructor(private store: Store) { }
 
   ngOnInit(): void {
-    this.store.dispatch(FriendsActions.loadFriends());
     this.friends$ = this.store.select(fromFriends.selectFriends);
   }
 

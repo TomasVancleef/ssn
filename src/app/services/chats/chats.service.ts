@@ -4,7 +4,7 @@ import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
 import { Store } from '@ngrx/store';
 import * as fromAuth from '../../store/reducers/auth.reducer';
 import { Observable, from } from 'rxjs';
-import { map, switchMap, mergeMap } from 'rxjs/operators';
+import { map, switchMap, mergeMap, filter, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +28,8 @@ export class ChatsService {
                 lastMessage: '',
               })
           )
-        )
+        ),
+        catchError(e => []),
       );
   }
 

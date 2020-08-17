@@ -3,7 +3,7 @@ import { User } from './../../model/user';
 import { Observable } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
-import { map, filter } from 'rxjs/operators';
+import { map, filter, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +26,8 @@ export class FriendsService {
                 })
             )
             .filter((user) => user.uid != uid)
-        )
+        ),
+        catchError(e => []),
       );
   }
 }

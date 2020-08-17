@@ -11,3 +11,5 @@ export const sendMessage = createAction(
   'send message',
   props<{ uid: string; receiverUid: string; message: string }>()
 );
+
+export const clearChats = createAction(' clear chats');

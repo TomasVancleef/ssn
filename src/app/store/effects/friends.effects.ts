@@ -1,29 +1,28 @@
+import { AuthService } from './../../services/auth/auth.service';
 import { FriendsService } from './../../services/friends/friends.service';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, filter } from 'rxjs/operators';
 import { createEffect, Actions, ofType } from '@ngrx/effects';
 import { Injectable } from '@angular/core';
 import * as FriendsActions from '../actions/friends.actions';
-import { Store } from '@ngrx/store';
-import * as fromAuth from '../reducers/auth.reducer';
 
 @Injectable()
 export class FriendsEffects {
   constructor(
     private actions$: Actions,
     private friendsService: FriendsService,
-    private store: Store
+    private authService: AuthService,
   ) {}
 
   friendsLoad$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FriendsActions.loadFriends),
       switchMap((action) =>
-        this.store
-          .select(fromAuth.selectAuthUserUid)
+        this.authService.currentUser()
           .pipe(
-            switchMap((uid) =>
+            filter((user) => user != null),
+            switchMap((user) =>
               this.friendsService
-                .loadFriend(uid)
+                .loadFriend(user.uid)
                 .pipe(
                   map((friends) =>
                     FriendsActions.loadFriendsSuccess({ friends: friends })

@@ -24,7 +24,8 @@ const chatsReducer = createReducer(
     ...state,
     chats: state.chats.concat(action.chats),
     loading: false,
-  }))
+  })),
+  on(ChatsActions.clearChats, (state, action) => initialState)
 );
 
 export function reducer(state: State, action: Action) {
@@ -32,4 +33,7 @@ export function reducer(state: State, action: Action) {
 }
 
 export const selectChatsState = (state: AppState) => state.chats;
-export const selectChats = createSelector(selectChatsState, state => state.chats);
+export const selectChats = createSelector(
+  selectChatsState,
+  (state) => state.chats
+);

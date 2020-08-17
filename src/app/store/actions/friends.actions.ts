@@ -6,3 +6,5 @@ export const loadFriendsSuccess = createAction(
   'load friend success',
   props<{ friends: Friend[] }>()
 );
+
+export const clearFriends = createAction('clear friends');

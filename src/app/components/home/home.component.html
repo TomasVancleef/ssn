@@ -7,16 +7,17 @@
       <mat-icon>message</mat-icon>
     </button>
     <app-toolbar></app-toolbar>
-    <mat-tab-group mat-align-tabs="center">
-      <mat-tab label="Профиль">
-        <app-user></app-user>
-      </mat-tab>
-      <mat-tab label="Сообщения">
-        <app-chats></app-chats>
-      </mat-tab>
-      <mat-tab label="Друзья">
-        <app-friends></app-friends>
-      </mat-tab>
-    </mat-tab-group>
+    <nav mat-tab-nav-bar mat-align-tabs="center">
+      <a
+        mat-tab-link
+        *ngFor="let link of links"
+        [routerLink]="link.route"
+        (click)="activeLink = link"
+        [active]="activeLink == link"
+      >
+        {{ link.title }}
+      </a>
+    </nav>
+    <router-outlet></router-outlet>
   </mat-drawer-content>
 </mat-drawer-container>

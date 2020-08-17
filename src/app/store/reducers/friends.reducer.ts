@@ -23,7 +23,8 @@ const friendsReducer = createReducer(
     ...state,
     loading: false,
     friends: state.friends.concat(action.friends),
-  }))
+  })),
+  on(FriendsActions.clearFriends, (state, action) => (initialState))
 );
 
 export function reducer(state: State, action: Action) {

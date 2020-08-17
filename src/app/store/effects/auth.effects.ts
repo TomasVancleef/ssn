@@ -7,6 +7,8 @@ import { switchMap, map, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import * as SidenavActions from '../actions/sidenav.actions';
+import * as FriendsActions from '../actions/friends.actions';
+import * as ChatsActions from '../actions/chats.actions';
 
 @Injectable()
 export class AuthEffects {
@@ -39,7 +41,10 @@ export class AuthEffects {
     () =>
       this.actions$.pipe(
         ofType(AuthActions.login_success),
-        tap(() => this.router.navigate(['home']))
+        tap(() => {
+          this.store.dispatch(FriendsActions.loadFriends());
+          this.router.navigate(['home/user'])
+      })
       ),
     { dispatch: false }
   );
@@ -59,6 +64,8 @@ export class AuthEffects {
         ofType(AuthActions.logout_success),
         tap(() => {
           this.store.dispatch(SidenavActions.closeSidenav());
+          this.store.dispatch(FriendsActions.clearFriends());
+          this.store.dispatch(ChatsActions.clearChats());
           this.router.navigate(['login']);
         })
       ),

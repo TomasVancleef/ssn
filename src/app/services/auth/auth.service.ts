@@ -1,3 +1,4 @@
+import { AngularFirestore } from '@angular/fire/firestore';
 import { ChatsService } from './../chats/chats.service';
 import { ImageService } from './../image/image.service';
 import { switchMap, filter, map } from 'rxjs/operators';
@@ -13,7 +14,8 @@ export class AuthService {
   constructor(
     private angularFireAuth: AngularFireAuth,
     private imageService: ImageService,
-    private chatsService: ChatsService
+    private chatsService: ChatsService,
+    private angularFirestore: AngularFirestore
   ) {}
 
   login(email: string, password: string): Observable<User> {
@@ -39,22 +41,39 @@ export class AuthService {
     ).pipe(
       switchMap((createUserResult) =>
         from(createUserResult.user.updateProfile({ displayName: name })).pipe(
-          map((updateProfileResult) => createUserResult.user)
+          switchMap((updateProfileResult) =>
+            this.setUserData().pipe(map(() => createUserResult.user))
+          )
+        )
+      )
+    );
+  }
+
+  setUserData(): Observable<void> {
+    return this.currentUser().pipe(
+      filter((user) => user != null),
+      switchMap((user) =>
+        from(
+          this.angularFirestore
+            .collection('users')
+            .doc(user.uid)
+            .set({ name: user.displayName })
         )
       )
     );
   }
 
   autoLogin(): Observable<User> {
-    return this.currentUser();
+    return this.currentUser().pipe(filter((user) => user != null));
   }
 
-  private currentUser(): Observable<User> {
-    return this.angularFireAuth.authState.pipe(filter((user) => user != null));
+  currentUser(): Observable<User> {
+    return this.angularFireAuth.user.pipe();
   }
 
   updateAvatar(file: File): Observable<string> {
     return this.currentUser().pipe(
+      filter((user) => user != null),
       switchMap((user) =>
         this.imageService.uploadPhoto(file).pipe(
           switchMap((ref) =>
