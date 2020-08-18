@@ -1,4 +1,5 @@
-import { createReducer, on, Action } from '@ngrx/store';
+import { AppState } from './../app.reducer';
+import { createReducer, on, Action, createSelector } from '@ngrx/store';
 import { Message } from './../../model/message';
 import * as MessagesActions from '../actions/messages.actions';
 
@@ -15,16 +16,26 @@ const initialState: State = {
 const messagesReducer = createReducer(
   initialState,
   on(MessagesActions.loadMessages, (state, action) => ({
-    ...state,
+    messages: [],
     loading: true,
   })),
-  on(MessagesActions.loadMessagesSuccess, (state, action) => ({
-    ...state,
-    loading: false,
-    messages: state.messages.concat(action.messages),
-  }))
+  on(MessagesActions.loadMessagesSuccess, (state, action) => {
+    return {
+      ...state,
+      loading: false,
+      messages: state.messages
+        .concat(action.messages)
+        .sort((a, b) => +new Date(a.date) - +new Date(b.date)),
+    };
+  })
 );
 
 export function reducer(state: State, action: Action) {
   return messagesReducer(state, action);
 }
+
+export const selectState = (state: AppState) => state.messages;
+export const selectMessages = createSelector(
+  selectState,
+  (state) => state.messages
+);

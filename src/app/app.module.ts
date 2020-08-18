@@ -25,6 +25,7 @@ import { FriendsComponent } from './components/home/friends/friends.component';
 import { FriendComponent } from './components/home/friends/friend/friend.component';
 import { MessagesComponent } from './components/home/messages/messages.component';
 import { MessageComponent } from './components/home/messages/message/message.component';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import { MessageComponent } from './components/home/messages/message/message.com
     MaterialModule,
     FormsModule,
     AngularFireModule.initializeApp(environment.firebase),
-    FlexLayoutModule
+    FlexLayoutModule,
+    ScrollingModule
   ],
   providers: [],
   bootstrap: [AppComponent]

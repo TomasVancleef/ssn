@@ -6,6 +6,7 @@ import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { Observable, from } from 'rxjs';
 import { User } from 'firebase';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,8 @@ export class AuthService {
     private angularFireAuth: AngularFireAuth,
     private imageService: ImageService,
     private chatsService: ChatsService,
-    private angularFirestore: AngularFirestore
+    private angularFirestore: AngularFirestore,
+    private matSnackBar: MatSnackBar
   ) {}
 
   login(email: string, password: string): Observable<User> {
@@ -23,7 +25,12 @@ export class AuthService {
       this.angularFireAuth
         .signInWithEmailAndPassword(email, password)
         .then((authResult) => authResult.user)
-        .catch((e) => e)
+        .catch((e) => {
+          let snackBarRef = this.matSnackBar.open(e.message, '', {
+            duration: 3000,
+          });
+          return null;
+        })
     );
   }
 
@@ -64,11 +71,11 @@ export class AuthService {
   }
 
   autoLogin(): Observable<User> {
-    return this.currentUser().pipe(filter((user) => user != null));
+    return this.currentUser();
   }
 
   currentUser(): Observable<User> {
-    return this.angularFireAuth.user.pipe();
+    return this.angularFireAuth.user;
   }
 
   updateAvatar(file: File): Observable<string> {

@@ -9,6 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { CdkScrollableModule } from '@angular/cdk/scrolling';
 
 const modules = [
   MatCardModule,
@@ -21,6 +23,8 @@ const modules = [
   MatListModule,
   MatDividerModule,
   MatTabsModule,
+  MatSnackBarModule,
+  CdkScrollableModule,
 ];
 
 @NgModule({

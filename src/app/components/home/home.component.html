@@ -3,12 +3,13 @@
     <app-sidemenu></app-sidemenu>
   </mat-drawer>
   <mat-drawer-content>
-    <button mat-fab class="mat-fab-bottom-right">
+    <!-- <button mat-fab class="mat-fab-bottom-right">
       <mat-icon>message</mat-icon>
-    </button>
+    </button> -->
     <app-toolbar></app-toolbar>
     <nav mat-tab-nav-bar mat-align-tabs="center">
       <a
+      fxFlex
         mat-tab-link
         *ngFor="let link of links"
         [routerLink]="link.route"

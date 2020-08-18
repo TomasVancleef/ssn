@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { AuthService } from './../../services/auth/auth.service';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
 import * as AuthActions from '../actions/auth.actions';
-import { switchMap, map, tap } from 'rxjs/operators';
+import { switchMap, map, tap, filter, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import * as SidenavActions from '../actions/sidenav.actions';
@@ -24,6 +24,7 @@ export class AuthEffects {
       ofType(AuthActions.login),
       switchMap((action) =>
         this.authService.login(action.email, action.password).pipe(
+          filter(user => user != null),
           map((user) =>
             AuthActions.login_success({
               uid: user.uid,
@@ -31,7 +32,7 @@ export class AuthEffects {
               email: user.email,
               photo: user.photoURL,
             })
-          )
+          ),
         )
       )
     )
@@ -77,15 +78,16 @@ export class AuthEffects {
       ofType(AuthActions.auto_login),
       switchMap(() =>
         this.authService.autoLogin().pipe(
-          map((user) =>
-            AuthActions.login_success({
+          filter(user => user != null),
+          map((user) => {
+           return  AuthActions.login_success({
               name: user.displayName,
               uid: user.uid,
               email: user.email,
               photo:
                 user.photoURL ??
                 'https://firebasestorage.googleapis.com/v0/b/cosmo-chat-bf694.appspot.com/o/avatars%2F-C3JhGfgsIg.jpg?alt=media&token=9749bbbb-ede3-42df-9619-b68fe461b161',
-            })
+            })}
           )
         )
       )

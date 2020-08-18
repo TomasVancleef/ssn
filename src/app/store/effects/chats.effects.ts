@@ -3,11 +3,9 @@ import { switchMap, map, filter } from 'rxjs/operators';
 import { ChatsService } from './../../services/chats/chats.service';
 import { createEffect, Actions, ofType } from '@ngrx/effects';
 import * as ChatsActions from '../actions/chats.actions';
-import * as fromAuth from '../reducers/auth.reducer';
-import * as AuthActions from '../actions/auth.actions';
 
 import { Injectable } from '@angular/core';
-import { Store } from '@ngrx/store';
+
 @Injectable()
 export class ChatsEffects {
   constructor(

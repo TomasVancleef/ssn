@@ -1,6 +1,6 @@
 import { AuthService } from './../../services/auth/auth.service';
 import { MessagesService } from './../../services/messages/messages.service';
-import { map, filter, switchMap } from 'rxjs/operators';
+import { map, filter, switchMap, tap } from 'rxjs/operators';
 import { createEffect, Actions, ofType } from '@ngrx/effects';
 import { Injectable } from '@angular/core';
 import * as MessagesActions from '../actions/messages.actions';
@@ -31,5 +31,14 @@ export class MessagesEffects {
         )
       )
     )
+  );
+
+  sendMessage$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(MessagesActions.sendMessage),
+      tap((action) => {
+        this.messagesService.sendMessage(action.message)})
+    ),
+    { dispatch: false }
   );
 }

@@ -1,7 +1,7 @@
 <a mat-list-item>
-  <mat-card>
+  <mat-card [ngClass]="{ 'my-message-card': message.my }">
     <p matLine>
-      <span> Сообщение </span>
+      <span> {{ message.text }} </span>
     </p>
   </mat-card>
 </a>

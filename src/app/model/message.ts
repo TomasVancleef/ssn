@@ -1,9 +1,15 @@
 export class Message {
-  message: string;
+  my: boolean;
+  uid: string;
+  interlocutorUid: string;
+  text: string;
   date: Date;
 
-  constructor({ message, date }) {
-    this.message = message;
+  constructor({ my, uid, interlocutorUid, text, date }) {
+    this.my = my;
+    this.uid = uid;
+    this.interlocutorUid = interlocutorUid;
+    this.text = text;
     this.date = date;
   }
 }
