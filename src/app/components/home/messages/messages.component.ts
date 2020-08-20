@@ -22,6 +22,7 @@ export class MessagesComponent implements OnInit {
   interlocutorUid: string;
   messageText = '';
   messages$: Observable<Message[]>;
+  messagesLoading$: Observable<boolean>;
   uid: string;
   paramsSubscription: Subscription;
 
@@ -32,6 +33,7 @@ export class MessagesComponent implements OnInit {
       .pipe(take(1))
       .subscribe((params) => (this.interlocutorUid = params['id']));
 
+    this.messagesLoading$ = this.store.select(fromMessages.selectMessagesLoading);
     this.messages$ = this.store.select(fromMessages.selectMessages);
 
     this.store

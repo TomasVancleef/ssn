@@ -25,6 +25,7 @@ export class FriendsService {
                   uid: user.payload.doc.id,
                   name: user.payload.doc.data()['name'],
                   myFriend: false,
+                  photo: user.payload.doc.data()['photo'],
                 }))
                 .filter((user) => user.uid != uid)
             ),

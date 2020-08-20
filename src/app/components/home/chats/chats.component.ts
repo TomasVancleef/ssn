@@ -12,10 +12,12 @@ import * as ChatsActions from '../../../store/actions/chats.actions';
 })
 export class ChatsComponent implements OnInit {
   chats$: Observable<Chat[]>;
+  chatsLoading$: Observable<boolean>;
 
   constructor(private store: Store) {}
 
   ngOnInit(): void {
     this.chats$ = this.store.select(fromChats.selectChats);
+    this.chatsLoading$ = this.store.select(fromChats.selectChatsLoading);
   }
 }

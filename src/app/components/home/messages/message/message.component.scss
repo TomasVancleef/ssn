@@ -1,10 +1,24 @@
-.my-message-card {
+.myMessageCard {
   background-color: rgb(12, 94, 148);
   color: white;
 }
 
-.not-my-message-card {
+.notMyMessageCard {
   background-color: rgb(243, 243, 223);
+  left: 0;
+}
+
+.myMessageSection {
+  align-items: flex-end;
+}
+
+.notMyMessageSection {
+  align-items: flex-start;
+}
+
+section {
+  width: 100%;
+  display: flex;
 }
 
 mat-card {

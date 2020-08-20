@@ -1,8 +1,15 @@
-<section fxLayout="row" [fxLayoutAlign]="align">
-  <mat-card [ngClass]="{ 'my-message-card': message.my }">
+<section
+  fxLayout="column"
+  [ngClass]="{ myMessageSection: message.my, notMyMessageSection: !message.my }"
+>
+  <mat-card
+    [ngClass]="{ myMessageCard: message.my, notMyMessageCard: !message.my }"
+  >
     <p matLine>
       <span> {{ message.text }} </span>
     </p>
-    <div class="date-div" mat-line>{{ message.date.toDate() | date:'dd-MM-yyyy hh:mm' }}</div>
+    <div class="date-div" mat-line>
+      {{ message.date.toDate() | date: "dd-MM-yyyy hh:mm" }}
+    </div>
   </mat-card>
 </section>

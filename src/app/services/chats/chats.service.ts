@@ -29,16 +29,20 @@ export class ChatsService {
             .doc(uid)
             .collection('messages')
             .snapshotChanges(),
-          this.angularFirestore.collection('users').snapshotChanges()
+          this.angularFirestore.collection('users').snapshotChanges(),
         ).pipe(
           map(([messages, users]) =>
-            messages.map((message) => ({
-              interlocutorUid: message.payload.doc.id,
-              interlocutorName: users
+            messages.map((message) => {
+              let userData = users
                 .find((user) => user.payload.doc.id == message.payload.doc.id)
-                .payload.doc.data()['name'],
-              lastMessage: 'test',
-            }))
+                .payload.doc.data();
+              return {
+                interlocutorUid: message.payload.doc.id,
+                interlocutorName: userData['name'],
+                lastMessage: '...',
+                photo: userData['photo'],
+              };
+            })
           )
         )
       ),

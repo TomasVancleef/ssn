@@ -11,6 +11,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { CdkScrollableModule } from '@angular/cdk/scrolling';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 const modules = [
   MatCardModule,
@@ -25,6 +26,7 @@ const modules = [
   MatTabsModule,
   MatSnackBarModule,
   CdkScrollableModule,
+  MatProgressSpinnerModule
 ];
 
 @NgModule({

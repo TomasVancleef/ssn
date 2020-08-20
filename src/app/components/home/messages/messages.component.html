@@ -1,4 +1,7 @@
 <section fxFlex>
+  <div *ngIf="messagesLoading$ | async" fxLayoutAlign="center center">
+    <mat-spinner></mat-spinner>
+  </div>
   <cdk-virtual-scroll-viewport
     #scroll
     itemSize="50"

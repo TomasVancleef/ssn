@@ -18,11 +18,14 @@ export class HomeComponent implements OnInit {
     { title: 'Профиль', icon: 'settings', route: 'user' },
   ];
   activeLink = this.links[0];
+  mobile = false;
 
   constructor(private store: Store) {}
 
   ngOnInit(): void {
     this.opened = this.store.select(fromSidenav.selectSidenavOpen);
+    this.mobile = window.screen.width < 600;
+    window.onresize = () => this.mobile = window.screen.width < 600;
   }
 
   closeSidenav() {

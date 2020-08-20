@@ -37,3 +37,8 @@ export const selectMessages = createSelector(
   selectState,
   (state) => state.messages
 );
+
+export const selectMessagesLoading = createSelector(
+  selectState,
+  (state) => state.loading
+);
