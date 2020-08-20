@@ -1,3 +1,4 @@
+import { AngularFirestore } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
 import { AuthService } from './../../services/auth/auth.service';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
@@ -8,6 +9,7 @@ import { Store } from '@ngrx/store';
 import * as SidenavActions from '../actions/sidenav.actions';
 import * as FriendsActions from '../actions/friends.actions';
 import * as ChatsActions from '../actions/chats.actions';
+import { combineLatest } from 'rxjs';
 
 @Injectable()
 export class AuthEffects {
@@ -15,7 +17,8 @@ export class AuthEffects {
     private actions$: Actions,
     private authService: AuthService,
     private router: Router,
-    private store: Store
+    private store: Store,
+    private angularFirestore: AngularFirestore
   ) {}
 
   userLogin$ = createEffect(() =>
@@ -23,7 +26,7 @@ export class AuthEffects {
       ofType(AuthActions.login),
       switchMap((action) =>
         this.authService.login(action.email, action.password).pipe(
-          filter(user => user != null),
+          filter((user) => user != null),
           map((user) =>
             AuthActions.login_success({
               uid: user.uid,
@@ -31,7 +34,7 @@ export class AuthEffects {
               email: user.email,
               photo: user.photoURL,
             })
-          ),
+          )
         )
       )
     )
@@ -41,12 +44,12 @@ export class AuthEffects {
     () =>
       this.actions$.pipe(
         ofType(AuthActions.login_success),
-        tap(() => {
-          this.store.dispatch(ChatsActions.loadChats());
-          this.store.dispatch(FriendsActions.loadFriends());
+        tap((action) => {
+          this.store.dispatch(ChatsActions.loadChats({ uid: action.uid }));
+          this.store.dispatch(FriendsActions.loadFriends({ uid: action.uid }));
 
-          this.router.navigate(['home/chats'])
-      })
+          this.router.navigate(['home/chats']);
+        })
       ),
     { dispatch: false }
   );
@@ -79,16 +82,14 @@ export class AuthEffects {
       ofType(AuthActions.auto_login),
       switchMap(() =>
         this.authService.currentUser().pipe(
-          filter(user => user != null),
-          map((user) => {
-           return  AuthActions.login_success({
+          filter((user) => user != null),
+          map((user) =>
+            AuthActions.login_success({
               name: user.displayName,
               uid: user.uid,
               email: user.email,
-              photo:
-                user.photoURL ??
-                'https://firebasestorage.googleapis.com/v0/b/cosmo-chat-bf694.appspot.com/o/avatars%2F-C3JhGfgsIg.jpg?alt=media&token=9749bbbb-ede3-42df-9619-b68fe461b161',
-            })}
+              photo: user.photoURL,
+            })
           )
         )
       )
@@ -118,15 +119,21 @@ export class AuthEffects {
       ofType(AuthActions.registration_success),
       switchMap((action) =>
         this.authService.currentUser().pipe(
-          map((user) =>
-            AuthActions.login_success({
-              name: user.displayName,
-              uid: user.uid,
-              email: user.email,
-              photo:
-                user.photoURL ??
-                'https://firebasestorage.googleapis.com/v0/b/cosmo-chat-bf694.appspot.com/o/avatars%2F-C3JhGfgsIg.jpg?alt=media&token=9749bbbb-ede3-42df-9619-b68fe461b161',
-            })
+          switchMap((user) =>
+            this.angularFirestore
+              .collection('default')
+              .doc('avatar')
+              .get()
+              .pipe(
+                map((avatar) =>
+                  AuthActions.login_success({
+                    name: user.displayName,
+                    uid: user.uid,
+                    email: user.email,
+                    photo: user.photoURL,
+                  })
+                )
+              )
           )
         )
       )

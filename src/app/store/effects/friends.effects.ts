@@ -25,19 +25,14 @@ export class FriendsEffects {
   friendsLoad$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FriendsActions.loadFriends),
-      concatMap((action) =>
-        of(action).pipe(
-          withLatestFrom(this.store.select(fromAuth.selectAuthUserUid)),
-          switchMap(([action, uid]) =>
-            this.friendsService
-              .loadFriend(uid)
-              .pipe(
-                map((friends) =>
-                  FriendsActions.loadFriendsSuccess({ friends: friends })
-                )
-              )
+      switchMap((action) =>
+        this.friendsService
+          .loadFriend(action.uid)
+          .pipe(
+            map((friends) =>
+              FriendsActions.loadFriendsSuccess({ friends: friends })
+            )
           )
-        )
       )
     )
   );

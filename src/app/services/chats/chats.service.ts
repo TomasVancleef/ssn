@@ -43,7 +43,8 @@ export class ChatsService {
                 photo: userData['photo'],
               };
             })
-          )
+          ),
+          catchError((e) => [])
         )
       ),
       catchError((e) => [])

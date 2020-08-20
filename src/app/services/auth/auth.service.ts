@@ -3,7 +3,7 @@ import { ImageService } from './../image/image.service';
 import { switchMap, filter, map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { Observable, from } from 'rxjs';
+import { Observable, from, combineLatest } from 'rxjs';
 import { User } from 'firebase';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -45,24 +45,36 @@ export class AuthService {
       this.angularFireAuth.createUserWithEmailAndPassword(email, password)
     ).pipe(
       switchMap((createUserResult) =>
-        from(createUserResult.user.updateProfile({ displayName: name })).pipe(
-          switchMap((updateProfileResult) =>
-            this.setUserData().pipe(
-              switchMap(() =>
-                from(
-                  this.angularFirestore
-                    .collection('users')
-                    .doc(createUserResult.user.uid)
-                    .set({
-                      name: createUserResult.user.displayName,
-                      photo:
-                        'https://firebasestorage.googleapis.com/v0/b/cosmo-chat-bf694.appspot.com/o/avatars%2F-C3JhGfgsIg.jpg?alt=media&token=9749bbbb-ede3-42df-9619-b68fe461b161',
-                    })
-                ).pipe(map((res) => createUserResult.user))
+        this.angularFirestore
+          .collection('default')
+          .doc('avatar')
+          .get()
+          .pipe(
+            switchMap((avatar) =>
+              from(
+                createUserResult.user.updateProfile({
+                  displayName: name,
+                  photoURL: avatar.data()['ref'],
+                })
+              ).pipe(
+                switchMap((updateProfileResult) =>
+                  this.setUserData().pipe(
+                    switchMap(() =>
+                      from(
+                        this.angularFirestore
+                          .collection('users')
+                          .doc(createUserResult.user.uid)
+                          .set({
+                            name: createUserResult.user.displayName,
+                            photo: avatar.data()['ref'],
+                          })
+                      ).pipe(map((res) => createUserResult.user))
+                    )
+                  )
+                )
               )
             )
           )
-        )
       )
     );
   }

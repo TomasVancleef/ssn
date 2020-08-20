@@ -26,16 +26,11 @@ export class ChatsEffects {
   loadChats = createEffect(() =>
     this.actions$.pipe(
       ofType(ChatsActions.loadChats),
-      concatMap((action) =>
-        of(action).pipe(
-          withLatestFrom(this.store.pipe(select(fromAuth.selectAuthUserUid))),
-          switchMap(([action, uid]) =>
-            this.chatsService.loadChats(uid).pipe(
-              map((chats) => {
-                return ChatsActions.loadChatsSuccess({ chats: chats });
-              })
-            )
-          )
+      switchMap((action) =>
+        this.chatsService.loadChats(action.uid).pipe(
+          map((chats) => {
+            return ChatsActions.loadChatsSuccess({ chats: chats });
+          })
         )
       )
     )
