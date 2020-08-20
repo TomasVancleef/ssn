@@ -1,9 +1,6 @@
-export class Friend {
+export interface Friend {
   uid: string;
   name: string;
-
-  constructor({uid, name}) {
-    this.uid = uid;
-    this.name = name;
-  }
+  myFriend: boolean;
 }
+

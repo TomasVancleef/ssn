@@ -18,11 +18,12 @@ const chatsReducer = createReducer(
   initialState,
   on(ChatsActions.loadChats, (state, action) => ({
     ...state,
+    chats: [],
     loading: true,
   })),
   on(ChatsActions.loadChatsSuccess, (state, action) => ({
     ...state,
-    chats: state.chats.concat(action.chats),
+    chats: action.chats,
     loading: false,
   })),
   on(ChatsActions.clearChats, (state, action) => initialState)

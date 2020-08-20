@@ -17,12 +17,13 @@ const friendsReducer = createReducer(
   initialState,
   on(FriendsActions.loadFriends, (state, action) => ({
     ...state,
+    friends: [],
     loading: true,
   })),
   on(FriendsActions.loadFriendsSuccess, (state, action) => ({
     ...state,
     loading: false,
-    friends: state.friends.concat(action.friends),
+    friends: action.friends,
   })),
   on(FriendsActions.clearFriends, (state, action) => (initialState))
 );

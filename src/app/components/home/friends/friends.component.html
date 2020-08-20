@@ -1,5 +1,13 @@
 <section fxFlex>
-  <mat-nav-list>
-    <app-friend *ngFor="let friend of friends$ | async" [friend]="friend"></app-friend>
-  </mat-nav-list>
+  <cdk-virtual-scroll-viewport
+    itemSize="50"
+    class="viewport"
+    fxLayout="column"
+    fxLayoutAlign="start start"
+    orientation="vertical"
+  >
+    <div *cdkVirtualFor="let friend of friends$ | async" fxFlex>
+      <app-friend [friend]="friend"></app-friend>
+    </div>
+  </cdk-virtual-scroll-viewport>
 </section>

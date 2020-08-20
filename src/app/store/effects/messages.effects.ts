@@ -1,44 +1,55 @@
-import { AuthService } from './../../services/auth/auth.service';
+import { Store } from '@ngrx/store';
 import { MessagesService } from './../../services/messages/messages.service';
-import { map, filter, switchMap, tap } from 'rxjs/operators';
+import {
+  map,
+  filter,
+  switchMap,
+  tap,
+  withLatestFrom,
+  concatMap,
+} from 'rxjs/operators';
 import { createEffect, Actions, ofType } from '@ngrx/effects';
 import { Injectable } from '@angular/core';
 import * as MessagesActions from '../actions/messages.actions';
+import * as fromAuth from '../reducers/auth.reducer';
+import { of } from 'rxjs';
 
 @Injectable()
 export class MessagesEffects {
+  uid: string;
+
   constructor(
     private actions$: Actions,
     private messagesService: MessagesService,
-    private authService: AuthService
+    private store: Store
   ) {}
 
   loadMessages$ = createEffect(() =>
     this.actions$.pipe(
       ofType(MessagesActions.loadMessages),
-      switchMap((action) =>
-        this.authService.currentUser().pipe(
-          filter((user) => user != null),
-          switchMap((user) =>
-            this.messagesService
-              .loadMessages(user.uid, action.interlocutorUid)
-              .pipe(
-                map((messages) =>
-                  MessagesActions.loadMessagesSuccess({ messages: messages })
-                )
-              )
-          )
+      concatMap((action) =>
+        of(action).pipe(
+          withLatestFrom(this.store.select(fromAuth.selectAuthUserUid))
+        )
+      ),
+      switchMap(([action, uid]) =>
+        this.messagesService.loadMessages(uid, action.interlocutorUid).pipe(
+          map((messages) => {
+            return MessagesActions.loadMessagesSuccess({ messages: messages });
+          })
         )
       )
     )
   );
 
-  sendMessage$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(MessagesActions.sendMessage),
-      tap((action) => {
-        this.messagesService.sendMessage(action.message)})
-    ),
+  sendMessage$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(MessagesActions.sendMessage),
+        tap((action) => {
+          this.messagesService.sendMessage(action.message);
+        })
+      ),
     { dispatch: false }
   );
 }

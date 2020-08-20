@@ -23,9 +23,7 @@ const messagesReducer = createReducer(
     return {
       ...state,
       loading: false,
-      messages: state.messages
-        .concat(action.messages)
-        .sort((a, b) => +new Date(a.date) - +new Date(b.date)),
+      messages: [].concat(action.messages).sort((a, b) => +b.date - +a.date),
     };
   })
 );

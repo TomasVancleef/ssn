@@ -1,18 +1,26 @@
 <section fxFlex>
-  <!-- <mat-list fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="end start">
-    <app-message *ngFor="let message of messages | async" [message]="message"></app-message>
-  </mat-list> -->
-
-  <cdk-virtual-scroll-viewport itemSize="50" class="viewport" fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="end start">
-    <mat-list fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="end start">
-    <div *cdkVirtualFor="let message of messages | async" class="example-item"> <app-message [message]="message"></app-message></div>
-  </mat-list>
+  <cdk-virtual-scroll-viewport
+    #scroll
+    itemSize="50"
+    class="viewport"
+    fxLayout="column"
+    fxLayoutAlign="end start"
+  >
+    <div *cdkVirtualFor="let message of messages$ | async">
+      <app-message [message]="message"></app-message>
+    </div>
   </cdk-virtual-scroll-viewport>
 
-    <span fxLayoutAlign="center center" fxLayout="row" fxLayoutGap="10px">
-      <mat-form-field fxFlex>
-        <input matInput type="text" [(ngModel)]="messageText" />
-      </mat-form-field>
-      <button mat-icon-button (click)="sendMessage()"><mat-icon>send</mat-icon></button>
-    </span>
+  <mat-toolbar>
+    <mat-form-field fxFlex>
+      <input #message matInput type="text" [(ngModel)]="messageText" />
+    </mat-form-field>
+    <button
+      mat-icon-button
+      (click)="sendMessage()"
+      [disabled]="message.value == ''"
+    >
+      <mat-icon>send</mat-icon>
+    </button>
+  </mat-toolbar>
 </section>

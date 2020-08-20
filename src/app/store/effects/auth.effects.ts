@@ -1,9 +1,8 @@
-import { ImageService } from './../../services/image/image.service';
 import { Injectable } from '@angular/core';
 import { AuthService } from './../../services/auth/auth.service';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
 import * as AuthActions from '../actions/auth.actions';
-import { switchMap, map, tap, filter, catchError } from 'rxjs/operators';
+import { switchMap, map, tap, filter } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import * as SidenavActions from '../actions/sidenav.actions';
@@ -43,8 +42,10 @@ export class AuthEffects {
       this.actions$.pipe(
         ofType(AuthActions.login_success),
         tap(() => {
+          this.store.dispatch(ChatsActions.loadChats());
           this.store.dispatch(FriendsActions.loadFriends());
-          this.router.navigate(['home/user'])
+
+          this.router.navigate(['home/chats'])
       })
       ),
     { dispatch: false }
@@ -77,7 +78,7 @@ export class AuthEffects {
     this.actions$.pipe(
       ofType(AuthActions.auto_login),
       switchMap(() =>
-        this.authService.autoLogin().pipe(
+        this.authService.currentUser().pipe(
           filter(user => user != null),
           map((user) => {
            return  AuthActions.login_success({
@@ -116,7 +117,7 @@ export class AuthEffects {
     this.actions$.pipe(
       ofType(AuthActions.registration_success),
       switchMap((action) =>
-        this.authService.autoLogin().pipe(
+        this.authService.currentUser().pipe(
           map((user) =>
             AuthActions.login_success({
               name: user.displayName,

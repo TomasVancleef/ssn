@@ -16,8 +16,6 @@ export class ChatsComponent implements OnInit {
   constructor(private store: Store) {}
 
   ngOnInit(): void {
-    this.store.dispatch(ChatsActions.loadChats());
-
     this.chats$ = this.store.select(fromChats.selectChats);
   }
 }

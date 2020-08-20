@@ -13,9 +13,9 @@ import * as AuthActions from '../../store/actions/auth.actions';
 export class HomeComponent implements OnInit {
   opened: Observable<boolean>;
   links = [
-    { title: 'Профиль', route: 'user' },
-    { title: 'Сообщения', route: 'chats' },
-    { title: 'Друзья', route: 'friends' },
+    { title: 'Сообщения', icon: 'message', route: 'chats' },
+    { title: 'Друзья', icon: 'group', route: 'friends' },
+    { title: 'Профиль', icon: 'settings', route: 'user' },
   ];
   activeLink = this.links[0];
 

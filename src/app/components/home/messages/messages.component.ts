@@ -1,57 +1,63 @@
-import { selectAuthUser } from './../../../store/reducers/auth.reducer';
 import { Message } from './../../../model/message';
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
-import { Friend } from 'src/app/model/friend';
+import { Component, OnInit, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as MessagesActions from '../../../store/actions/messages.actions';
 import * as fromAuth from '../../../store/reducers/auth.reducer';
 import * as fromMessages from '../../../store/reducers/messages.reducer';
-import { map } from 'rxjs/operators';
+import { map, last, takeLast, take } from 'rxjs/operators';
 import { Observable, Subscription } from 'rxjs';
-import { User } from 'src/app/model/user';
-import { ActivatedRouteSnapshot, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { firestore } from 'firebase/app';
+import Timestamp = firestore.Timestamp;
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-messages',
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.scss'],
 })
-export class MessagesComponent implements OnInit, OnDestroy {
+export class MessagesComponent implements OnInit {
+  @ViewChild('scroll') scroll: CdkVirtualScrollViewport;
+
   interlocutorUid: string;
   messageText = '';
-  messages: Observable<Message[]>;
-  uid$: Observable<string>;
-  paramsSubscription: Subscription;
+  messages$: Observable<Message[]>;
   uid: string;
+  paramsSubscription: Subscription;
 
   constructor(private store: Store, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    this.paramsSubscription = this.route.params.subscribe(
-      (params) => (this.interlocutorUid = params['id'])
-    );
-    this.store.dispatch(MessagesActions.loadMessages({interlocutorUid: this.interlocutorUid}));
-    this.messages = this.store.select(fromMessages.selectMessages);
+    this.route.params
+      .pipe(take(1))
+      .subscribe((params) => (this.interlocutorUid = params['id']));
+
+    this.messages$ = this.store.select(fromMessages.selectMessages);
+
     this.store
       .select(fromAuth.selectAuthUserUid)
+      .pipe(take(1))
       .subscribe((uid) => (this.uid = uid));
+
+    this.store.dispatch(
+      MessagesActions.loadMessages({ interlocutorUid: this.interlocutorUid })
+    );
   }
 
   sendMessage() {
     this.store.dispatch(
       MessagesActions.sendMessage({
-        message: new Message({
+        message: {
+          id: '',
           my: true,
           uid: this.uid,
           interlocutorUid: this.interlocutorUid,
           text: this.messageText,
-          date: Date.now(),
-        }),
+          date: Timestamp.now(),
+        },
       })
     );
-  }
-
-  ngOnDestroy(): void {
-    this.paramsSubscription.unsubscribe();
+    this.messageText = '';
+    this.scroll.scrollToIndex(0);
   }
 }

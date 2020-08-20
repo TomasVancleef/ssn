@@ -10,14 +10,26 @@ mat-drawer-content {
 
 nav {
   height: 50px;
+  background-color: white;
 }
 
 mat-drawer {
-  width: 70%;
+  width: 30%;
 }
+
+@media (max-width: 600px) {
+  mat-drawer {
+    width: 70%;
+  }
+}
+
 
 .mat-fab-bottom-right {
   position: fixed;
   right: 20px;
   bottom: 20px;
+}
+
+.mat-icon {
+  margin-right: 10px;
 }

@@ -1,9 +1,21 @@
 .my-message-card {
-  background-color: green;
-  right: 10px;
-  position: fixed;
+  background-color: rgb(12, 94, 148);
+  color: white;
 }
 
 .not-my-message-card {
-  background-color: yellow;
+  background-color: rgb(243, 243, 223);
+}
+
+mat-card {
+  border-radius: 20px;
+  margin: 10px;
+}
+
+.date-div {
+  font-size: 0.5em;
+}
+
+p {
+  margin: 1px;
 }

@@ -1,5 +1,13 @@
 <section fxFlex>
-  <mat-nav-list>
-    <app-chat *ngFor="let chat of chats$ | async" [interlocutorUid]="chat.interlocutorUid"></app-chat>
-  </mat-nav-list>
+  <cdk-virtual-scroll-viewport
+    itemSize="50"
+    class="viewport"
+    fxLayout="column"
+    fxLayoutAlign="start start"
+  >
+    <div *cdkVirtualFor="let chat of chats$ | async" fxFlex>
+      <app-chat [chat]="chat"></app-chat>
+    </div>
+  </cdk-virtual-scroll-viewport>
+  <mat-nav-list> </mat-nav-list>
 </section>
