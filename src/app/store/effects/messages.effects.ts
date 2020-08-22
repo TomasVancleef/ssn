@@ -1,7 +1,7 @@
 import { Store } from '@ngrx/store';
 import { MessagesService } from './../../services/messages/messages.service';
 import { map, switchMap, withLatestFrom, concatMap } from 'rxjs/operators';
-import { createEffect, Actions, ofType } from '@ngrx/effects';
+import { createEffect, Actions, ofType, act } from '@ngrx/effects';
 import { Injectable } from '@angular/core';
 import * as MessagesActions from '../actions/messages.actions';
 import * as fromAuth from '../reducers/auth.reducer';
@@ -48,5 +48,16 @@ export class MessagesEffects {
           );
       })
     )
+  );
+
+  markMessagesAsViewed$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(MessagesActions.markMessagesAsViewed),
+        switchMap((action) =>
+          this.messagesService.markMessagesAsViewed(action.uid, action.interlocutorUid)
+        )
+      ),
+    { dispatch: false }
   );
 }

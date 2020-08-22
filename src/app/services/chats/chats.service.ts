@@ -47,6 +47,7 @@ export class ChatsService {
                                 ],
                                 lastMessage: docData['text'],
                                 photo: ref,
+                                viewed: docData['viewed'],
                               }))
                             )
                         )

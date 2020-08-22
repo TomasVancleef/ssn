@@ -3,4 +3,5 @@ export interface Chat {
   interlocutorName: string;
   lastMessage: string;
   photo: string;
+  viewed: boolean;
 }

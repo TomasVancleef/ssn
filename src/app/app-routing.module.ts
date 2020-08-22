@@ -1,3 +1,4 @@
+import { ProfileComponent } from './components/home/profile/profile.component';
 import { ChatsComponent } from './components/home/chats/chats.component';
 import { MessagesComponent } from './components/home/messages/messages.component';
 import { RegistrationComponent } from './components/registration/registration.component';
@@ -21,6 +22,7 @@ const routes: Routes = [
       { path: 'chats', component: ChatsComponent },
       { path: 'friends', component: FriendsComponent },
       { path: 'messages/:id', component: MessagesComponent },
+      { path: 'profile/:uid', component: ProfileComponent },
     ],
   },
   { path: '', redirectTo: 'login', pathMatch: 'full' },

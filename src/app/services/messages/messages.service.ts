@@ -1,7 +1,7 @@
 import { map, switchMap } from 'rxjs/operators';
 import { Message } from './../../model/message';
-import { Observable, from, combineLatest } from 'rxjs';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { Observable, combineLatest, forkJoin, from } from 'rxjs';
+import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -17,6 +17,7 @@ export class MessagesService {
         to: message.interlocutorUid,
         text: message.text,
         date: message.date,
+        viewed: false,
       })
     ).pipe(
       switchMap((doc) =>
@@ -31,6 +32,7 @@ export class MessagesService {
                 interlocutorsUid: message.uid,
                 text: message.text,
                 date: message.date,
+                viewed: false,
               })
           ),
           from(
@@ -43,6 +45,7 @@ export class MessagesService {
                 interlocutorsUid: message.interlocutorUid,
                 text: message.text,
                 date: message.date,
+                viewed: false,
               })
           )
         )
@@ -77,6 +80,7 @@ export class MessagesService {
               interlocutorUid: docData['to'],
               text: docData['text'],
               date: docData['date'],
+              viewed: docData['viewed'],
             };
           })
         )
@@ -103,8 +107,37 @@ export class MessagesService {
               interlocutorUid: docData['from'],
               text: docData['text'],
               date: docData['date'],
+              viewed: docData['viewed'],
             };
           })
+        )
+      );
+  }
+
+  markMessagesAsViewed(
+    uid: string,
+    interlocutorUid: string
+  ): Observable<void[]> {
+    return this.angularFirestore
+      .collection('messages', (ref) =>
+        ref
+          .where('to', '==', uid)
+          .where('from', '==', interlocutorUid)
+          .where('viewed', '==', false)
+      )
+      .snapshotChanges()
+      .pipe(
+        switchMap((messages) =>
+          forkJoin(
+            messages.map((message) =>
+              from(
+                this.angularFirestore
+                  .collection('messages')
+                  .doc(message.payload.doc.id)
+                  .update({ viewed: true })
+              )
+            )
+          )
         )
       );
   }

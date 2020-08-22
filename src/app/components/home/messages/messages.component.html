@@ -25,10 +25,10 @@
       <app-message [message]="message"></app-message>
     </div>
   </cdk-virtual-scroll-viewport>
-  <form #f="ngForm" (ngSubmit)="sendMessage(f)">
+  <form #f="ngForm" (ngSubmit)="sendMessage(f)" autocomplete="off">
     <mat-toolbar>
       <mat-form-field fxFlex>
-        <input name="message" matInput ngModel required />
+        <input name="message" type="search" matInput ngModel required />
       </mat-form-field>
       <button mat-icon-button type="submit">
         <mat-icon>send</mat-icon>

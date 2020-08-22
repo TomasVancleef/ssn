@@ -34,6 +34,7 @@ export class FriendsService {
                         map((ref) => ({
                           uid: user.payload.doc.id,
                           name: userData['name'],
+                          birthday: userData['birthday'],
                           myFriend: false,
                           photo: ref,
                         }))

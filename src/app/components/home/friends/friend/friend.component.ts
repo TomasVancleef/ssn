@@ -1,4 +1,3 @@
-import { Router } from '@angular/router';
 import { Component, OnInit, Input } from '@angular/core';
 import { Friend } from 'src/app/model/friend';
 
@@ -10,11 +9,7 @@ import { Friend } from 'src/app/model/friend';
 export class FriendComponent implements OnInit {
   @Input() friend: Friend;
 
-  constructor(private router: Router) {}
+  constructor() {}
 
   ngOnInit(): void {}
-
-  toMessages() {
-    this.router.navigate(['/messages']);
-  }
 }

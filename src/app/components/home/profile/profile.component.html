@@ -1,0 +1,13 @@
+<section>
+  <mat-list
+    fxLayoutAlign="start center"
+    fxLayoutGap="20px"
+    fxLayout="column"
+    fxFlex
+  >
+    <h1>{{ (profile$ | async).name }}</h1>
+    <h1>{{ (profile$ | async).birthday | date }}</h1>
+    <img mat-card-avatar [src]="(profile$ | async).photo" />
+    <button mat-raised-button color="primary" (click)="toMessages()">Написать</button>
+  </mat-list>
+</section>

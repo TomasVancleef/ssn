@@ -1,6 +1,6 @@
 import { appEffects } from './store/app.effects';
 import { environment } from './../environments/environment';
-import { MaterialModule } from './material/material.module';
+import { MaterialModule } from './modules/material.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -26,6 +26,7 @@ import { FriendComponent } from './components/home/friends/friend/friend.compone
 import { MessagesComponent } from './components/home/messages/messages.component';
 import { MessageComponent } from './components/home/messages/message/message.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { ProfileComponent } from './components/home/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +42,8 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     FriendsComponent,
     FriendComponent,
     MessagesComponent,
-    MessageComponent
+    MessageComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,

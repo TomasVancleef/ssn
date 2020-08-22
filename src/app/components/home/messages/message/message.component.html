@@ -2,14 +2,18 @@
   fxLayout="column"
   [ngClass]="{ myMessageSection: message.my, notMyMessageSection: !message.my }"
 >
-  <mat-card
-    [ngClass]="{ myMessageCard: message.my, notMyMessageCard: !message.my }"
-  >
-    <p matLine>
-      <span> {{ message.text }} </span>
-    </p>
-    <div class="date-div" mat-line>
-      {{ message.date.toDate() | date: "dd-MM-yyyy HH:mm" }}
-    </div>
-  </mat-card>
+  <div fxLayout="row">
+    <div *ngIf="message.my && !message.viewed" class="unviewed-point-my-message"></div>
+    <mat-card
+      [ngClass]="{ myMessageCard: message.my, notMyMessageCard: !message.my }"
+    >
+      <p matLine>
+        <span> {{ message.text }} </span>
+      </p>
+      <div class="date-div" mat-line>
+        {{ message.date.toDate() | date: "dd-MM-yyyy HH:mm" }}
+      </div>
+    </mat-card>
+    <div *ngIf="!message.my && !message.viewed" class="unviewed-point-not-my-message"></div>
+  </div>
 </section>
