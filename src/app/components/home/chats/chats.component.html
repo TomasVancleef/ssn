@@ -2,6 +2,10 @@
   <div class="spinner-container" *ngIf="chatsLoading$ | async" fxLayoutAlign="center center">
     <mat-spinner></mat-spinner>
   </div>
+  <div class="pre-loading" *ngIf="chatsEmpty$ | async" fxLayoutAlign="center center">
+    <h1>У Вас пока нет диалогов</h1>
+  </div>
+
   <cdk-virtual-scroll-viewport
     itemSize="50"
     class="viewport"

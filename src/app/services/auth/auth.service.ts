@@ -1,11 +1,13 @@
+import { Store } from '@ngrx/store';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { ImageService } from './../image/image.service';
-import { switchMap, filter, map } from 'rxjs/operators';
+import { switchMap, filter, map, take } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { Observable, from, combineLatest } from 'rxjs';
-import { User } from 'firebase';
+import { Observable, from, of } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import * as fromAuth from '../../store/reducers/auth.reducer';
+import { User } from 'src/app/model/user';
 
 @Injectable({
   providedIn: 'root',
@@ -15,19 +17,25 @@ export class AuthService {
     private angularFireAuth: AngularFireAuth,
     private imageService: ImageService,
     private angularFirestore: AngularFirestore,
-    private matSnackBar: MatSnackBar
+    private matSnackBar: MatSnackBar,
+    private store: Store
   ) {}
 
   login(email: string, password: string): Observable<User> {
     return from(
       this.angularFireAuth
         .signInWithEmailAndPassword(email, password)
-        .then((authResult) => authResult.user)
+        .then((authResult) => ({
+          uid: authResult.user.uid,
+          name: '',
+          email: authResult.user.email,
+          photo: '',
+        }))
         .catch((e) => {
-          let snackBarRef = this.matSnackBar.open(e.message, '', {
+          this.matSnackBar.open(e.message, '', {
             duration: 3000,
           });
-          return null;
+          return e;
         })
     );
   }
@@ -45,82 +53,76 @@ export class AuthService {
       this.angularFireAuth.createUserWithEmailAndPassword(email, password)
     ).pipe(
       switchMap((createUserResult) =>
-        this.angularFirestore
-          .collection('default')
-          .doc('avatar')
-          .get()
-          .pipe(
-            switchMap((avatar) =>
-              from(
-                createUserResult.user.updateProfile({
-                  displayName: name,
-                  photoURL: avatar.data()['ref'],
-                })
-              ).pipe(
-                switchMap((updateProfileResult) =>
-                  this.setUserData().pipe(
-                    switchMap(() =>
-                      from(
-                        this.angularFirestore
-                          .collection('users')
-                          .doc(createUserResult.user.uid)
-                          .set({
-                            name: createUserResult.user.displayName,
-                            photo: avatar.data()['ref'],
-                          })
-                      ).pipe(map((res) => createUserResult.user))
-                    )
-                  )
-                )
-              )
-            )
-          )
+        from(
+          this.angularFirestore
+            .collection('users')
+            .doc(createUserResult.user.uid)
+            .set({
+              name: name,
+              photo: this.imageService.getDefaultAvatar(),
+            })
+        ).pipe(
+          map(() => ({
+            uid: createUserResult.user.uid,
+            name: '',
+            email: createUserResult.user.email,
+            photo: '',
+          }))
+        )
       )
     );
   }
 
   setUserData(): Observable<void> {
-    return this.currentUser().pipe(
-      filter((user) => user != null),
+    return this.store.select(fromAuth.selectAuthUser).pipe(
+      filter((user) => user.uid != ''),
       switchMap((user) =>
         from(
           this.angularFirestore
             .collection('users')
             .doc(user.uid)
-            .set({ name: user.displayName })
+            .set({ name: user.name })
         )
       )
     );
   }
 
   currentUser(): Observable<User> {
-    return this.angularFireAuth.user;
-  }
+    return this.angularFireAuth.user.pipe(
+      switchMap((fireUser) => {
+        if (fireUser == null) {
+          return of({
+            uid: '',
+            name: '',
+            email: '',
+            photo: '',
+          });
+        } else {
+          let user = {
+            uid: fireUser.uid,
+            name: '',
+            email: fireUser.email,
+            photo: '',
+          };
 
-  updateAvatar(file: File): Observable<string> {
-    return this.currentUser().pipe(
-      filter((user) => user != null),
-      switchMap((user) =>
-        this.imageService.uploadPhoto(file).pipe(
-          switchMap((ref) =>
-            from(
-              user.updateProfile({
-                displayName: user.displayName,
-                photoURL: ref,
+          return this.angularFirestore
+            .collection('users')
+            .doc(fireUser.uid)
+            .valueChanges()
+            .pipe(
+              switchMap((userData) => {
+                user.name = userData['name'];
+                user.photo = userData['photo'];
+                return this.imageService.getUserAvatar(user.photo).pipe(
+                  map((ref) => {
+                    user.photo = ref;
+                    return user;
+                  })
+                );
               })
-            ).pipe(
-              switchMap(() =>
-                from(
-                  this.angularFirestore
-                    .collection('users')
-                    .doc(user.uid)
-                    .update({ photo: ref })
-                ).pipe(map(() => ref))
-              )
-            )
-          )
-        )
-      )
+            );
+        }
+      })
     );
   }
 }

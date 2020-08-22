@@ -1,13 +1,6 @@
 import { Store } from '@ngrx/store';
 import { MessagesService } from './../../services/messages/messages.service';
-import {
-  map,
-  filter,
-  switchMap,
-  tap,
-  withLatestFrom,
-  concatMap,
-} from 'rxjs/operators';
+import { map, switchMap, withLatestFrom, concatMap } from 'rxjs/operators';
 import { createEffect, Actions, ofType } from '@ngrx/effects';
 import { Injectable } from '@angular/core';
 import * as MessagesActions from '../actions/messages.actions';
@@ -42,14 +35,18 @@ export class MessagesEffects {
     )
   );
 
-  sendMessage$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(MessagesActions.sendMessage),
-        tap((action) => {
-          this.messagesService.sendMessage(action.message);
-        })
-      ),
-    { dispatch: false }
+  sendMessage$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(MessagesActions.sendMessage),
+      switchMap((action) => {
+        return this.messagesService
+          .sendMessage(action.message)
+          .pipe(
+            map((message) =>
+              MessagesActions.sendMessageSuccess({ message: message })
+            )
+          );
+      })
+    )
   );
 }

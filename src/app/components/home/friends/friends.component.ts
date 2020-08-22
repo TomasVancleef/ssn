@@ -1,7 +1,6 @@
 import { Observable } from 'rxjs';
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import * as FriendsActions from '../../../store/actions/friends.actions';
 import * as fromFriends from '../../../store/reducers/friends.reducer';
 import { Friend } from 'src/app/model/friend';
 

@@ -1,10 +1,18 @@
+import { NgForm } from '@angular/forms';
 import { Message } from './../../../model/message';
-import { Component, OnInit, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  AfterViewChecked,
+  HostListener,
+} from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as MessagesActions from '../../../store/actions/messages.actions';
 import * as fromAuth from '../../../store/reducers/auth.reducer';
 import * as fromMessages from '../../../store/reducers/messages.reducer';
-import { map, last, takeLast, take } from 'rxjs/operators';
+import { take } from 'rxjs/operators';
 import { Observable, Subscription } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { firestore } from 'firebase/app';
@@ -16,7 +24,7 @@ import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.scss'],
 })
-export class MessagesComponent implements OnInit {
+export class MessagesComponent implements OnInit, AfterViewChecked, OnDestroy {
   @ViewChild('scroll') scroll: CdkVirtualScrollViewport;
 
   interlocutorUid: string;
@@ -25,16 +33,28 @@ export class MessagesComponent implements OnInit {
   messagesLoading$: Observable<boolean>;
   uid: string;
   paramsSubscription: Subscription;
+  scrolledSubscription: Subscription;
+  scrolled = false;
+  messagesEmpty: Observable<boolean>;
 
   constructor(private store: Store, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    this.route.params
-      .pipe(take(1))
-      .subscribe((params) => (this.interlocutorUid = params['id']));
+    this.paramsSubscription = this.route.params.subscribe(
+      (params) => (this.interlocutorUid = params['id'])
+    );
 
-    this.messagesLoading$ = this.store.select(fromMessages.selectMessagesLoading);
+    this.messagesLoading$ = this.store.select(
+      fromMessages.selectMessagesLoading
+    );
+
+    this.messagesEmpty = this.store.select(fromMessages.selectMessagesEmpty);
     this.messages$ = this.store.select(fromMessages.selectMessages);
+
+    console.log('init');
+    this.scrolledSubscription = this.messages$.subscribe(
+      () => (this.scrolled = false)
+    );
 
     this.store
       .select(fromAuth.selectAuthUserUid)
@@ -46,7 +66,24 @@ export class MessagesComponent implements OnInit {
     );
   }
 
-  sendMessage() {
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  scrollToBottom() {
+    if (!this.scrolled) {
+      if (this.scroll != undefined) {
+        this.scroll.scrollToIndex(0);
+        this.scrolled = true;
+      }
+    }
+  }
+
+  sendMessage(f: NgForm) {
+    if (f.invalid) {
+      return;
+    }
+
     this.store.dispatch(
       MessagesActions.sendMessage({
         message: {
@@ -54,12 +91,26 @@ export class MessagesComponent implements OnInit {
           my: true,
           uid: this.uid,
           interlocutorUid: this.interlocutorUid,
-          text: this.messageText,
+          text: f.value.message,
           date: Timestamp.now(),
         },
       })
     );
-    this.messageText = '';
-    this.scroll.scrollToIndex(0);
+    f.resetForm();
+  }
+
+  ngOnDestroy(): void {
+    this.scrolledSubscription.unsubscribe();
+    this.paramsSubscription.unsubscribe();
+  }
+
+  @HostListener('mousewheel', ['$event']) onMousewheel(event) {
+    if (this.scroll != undefined) {
+      this.scroll.scrollToOffset(
+        this.scroll.elementRef.nativeElement.scrollTop + event.wheelDeltaY
+      );
+    }
+
+    event.preventDefault();
   }
 }

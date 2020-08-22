@@ -1,5 +1,8 @@
 <section fxLayout="column" fxLayoutAlign="center center">
-  <mat-card>
+  <div *ngIf="loggingIn$ | async" fxLayoutAlign="center center">
+    <mat-spinner></mat-spinner>
+  </div>
+  <mat-card *ngIf="!(loggingIn$ | async)">
     <form
       #f="ngForm"
       (ngSubmit)="login(f)"

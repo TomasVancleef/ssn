@@ -3,7 +3,6 @@ import { Observable } from 'rxjs';
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as fromSidenav from '../../store/reducers/sidenav.reducer';
-import * as AuthActions from '../../store/actions/auth.actions';
 
 @Component({
   selector: 'app-home',

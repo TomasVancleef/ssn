@@ -7,11 +7,13 @@ import * as ChatsActions from '../actions/chats.actions';
 export interface State {
   loading: boolean;
   chats: Chat[];
+  empty: boolean;
 }
 
 const initialState: State = {
   loading: false,
   chats: [],
+  empty: false,
 };
 
 const chatsReducer = createReducer(
@@ -20,11 +22,13 @@ const chatsReducer = createReducer(
     ...state,
     chats: [],
     loading: true,
+    empty: false,
   })),
   on(ChatsActions.loadChatsSuccess, (state, action) => ({
     ...state,
     chats: action.chats,
     loading: false,
+    empty: action.chats.length == 0,
   })),
   on(ChatsActions.clearChats, (state, action) => initialState)
 );
@@ -42,4 +46,9 @@ export const selectChats = createSelector(
 export const selectChatsLoading = createSelector(
   selectChatsState,
   (state) => state.loading
+);
+
+export const selectChatsEmpty = createSelector(
+  selectChatsState,
+  (state) => state.empty
 );

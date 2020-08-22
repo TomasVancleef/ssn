@@ -1,9 +1,9 @@
-import { map, switchMap } from 'rxjs/operators';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { map, switchMap, filter } from 'rxjs/operators';
 import { Observable, from } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { AngularFireStorage } from '@angular/fire/storage';
-import { Store, Action } from '@ngrx/store';
-import * as AuthActions from '../../store/actions/auth.actions';
+import { Store } from '@ngrx/store';
 import * as fromAuth from '../../store/reducers/auth.reducer';
 
 @Injectable({
@@ -12,8 +12,27 @@ import * as fromAuth from '../../store/reducers/auth.reducer';
 export class ImageService {
   constructor(
     private angularFireStorage: AngularFireStorage,
+    private angularFirestore: AngularFirestore,
     private store: Store
   ) {}
+
+  updateAvatar(file: File): Observable<string> {
+    return this.store.select(fromAuth.selectAuthUserUid).pipe(
+      filter((uid) => uid != ''),
+      switchMap((uid) =>
+        this.uploadPhoto(file).pipe(
+          switchMap((fileName) =>
+            from(
+              this.angularFirestore
+                .collection('users')
+                .doc(uid)
+                .update({ photo: fileName })
+            ).pipe(switchMap(() => this.getUserAvatar(fileName)))
+          )
+        )
+      )
+    );
+  }
 
   uploadPhoto(file: File): Observable<string> {
     return this.store
@@ -25,8 +44,16 @@ export class ImageService {
               '/avatars/' + uid + '/avatar.png',
               file
             )
-          ).pipe(switchMap((result) => from(result.ref.getDownloadURL())))
+          ).pipe(map((result) => '/avatars/' + uid + '/avatar.png'))
         )
       );
+  }
+
+  getUserAvatar(fileName: string) {
+    return this.angularFireStorage.ref(fileName).getDownloadURL();
+  }
+
+  getDefaultAvatar(): string {
+    return '/avatars/avatar.png';
   }
 }

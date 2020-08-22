@@ -1,7 +1,7 @@
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { Message } from './../../model/message';
-import { Observable, merge, from, combineLatest, zip } from 'rxjs';
-import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
+import { Observable, from, combineLatest } from 'rxjs';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -10,137 +10,102 @@ import { Injectable } from '@angular/core';
 export class MessagesService {
   constructor(private angularFirestore: AngularFirestore) {}
 
+  sendMessage(message: Message): Observable<any> {
+    return from(
+      this.angularFirestore.collection('messages').add({
+        from: message.uid,
+        to: message.interlocutorUid,
+        text: message.text,
+        date: message.date,
+      })
+    ).pipe(
+      switchMap((doc) =>
+        combineLatest(
+          from(
+            this.angularFirestore
+              .collection('users')
+              .doc(message.interlocutorUid)
+              .collection('chats')
+              .doc(message.uid)
+              .set({
+                interlocutorsUid: message.uid,
+                text: message.text,
+                date: message.date,
+              })
+          ),
+          from(
+            this.angularFirestore
+              .collection('users')
+              .doc(message.uid)
+              .collection('chats')
+              .doc(message.interlocutorUid)
+              .set({
+                interlocutorsUid: message.interlocutorUid,
+                text: message.text,
+                date: message.date,
+              })
+          )
+        )
+      )
+    );
+  }
+
   loadMessages(uid: string, interlocutorUid: string): Observable<Message[]> {
     return combineLatest(
       this.loadSentMessages(uid, interlocutorUid),
       this.loadReceivedMessages(uid, interlocutorUid)
-    ).pipe(map((messages) => messages[0].concat(messages[1])));
+    ).pipe(map(([sent, received]) => [].concat(sent).concat(received)));
   }
 
-  private loadSentMessages(
+  loadSentMessages(
     uid: string,
     interlocutorUid: string
   ): Observable<Message[]> {
     return this.angularFirestore
-      .collection('chats')
-      .doc(uid)
-      .collection('messages')
-      .doc(interlocutorUid)
-      .collection('sent')
-      .valueChanges()
+      .collection('messages', (ref) =>
+        ref.where('from', '==', uid).where('to', '==', interlocutorUid)
+      )
+      .snapshotChanges()
       .pipe(
-        map((snapshot) =>
-          snapshot.map((doc) => ({
-            id: doc.id,
-            my: true,
-            uid: uid,
-            interlocutorUid: interlocutorUid,
-            text: doc['text'],
-            date: doc['date'],
-          }))
+        map((docs) =>
+          docs.map((doc) => {
+            let docData = doc.payload.doc.data();
+            return {
+              id: doc.payload.doc.id,
+              my: true,
+              uid: docData['from'],
+              interlocutorUid: docData['to'],
+              text: docData['text'],
+              date: docData['date'],
+            };
+          })
         )
       );
   }
 
-  private loadReceivedMessages(
+  loadReceivedMessages(
     uid: string,
     interlocutorUid: string
   ): Observable<Message[]> {
     return this.angularFirestore
-      .collection('chats')
-      .doc(uid)
-      .collection('messages')
-      .doc(interlocutorUid)
-      .collection('received')
-      .valueChanges()
+      .collection('messages', (ref) =>
+        ref.where('to', '==', uid).where('from', '==', interlocutorUid)
+      )
+      .snapshotChanges()
       .pipe(
-        map((snapshot) =>
-          snapshot.map((doc) => ({
-            id: doc.id,
-            my: false,
-            uid: uid,
-            interlocutorUid: interlocutorUid,
-            text: doc['text'],
-            date: doc['date'],
-          }))
+        map((docs) =>
+          docs.map((doc) => {
+            let docData = doc.payload.doc.data();
+            return {
+              id: doc.payload.doc.id,
+              my: false,
+              uid: docData['to'],
+              interlocutorUid: docData['from'],
+              text: docData['text'],
+              date: docData['date'],
+            };
+          })
         )
       );
-  }
-
-  sendMessage(
-    message: Message
-  ): Observable<
-    [[void, void, DocumentReference], [void, void, DocumentReference]]
-  > {
-    return combineLatest(
-      this.addToMyMessages(message),
-      this.addToInterlocutorsMessages(message)
-    );
-  }
-
-  private addToMyMessages(
-    message: Message
-  ): Observable<[void, void, DocumentReference]> {
-    return combineLatest(
-      this.addChatsDoc(message.uid),
-      this.addMessagesDoc(message.uid, message.interlocutorUid),
-      this.addMyMessageDoc(message)
-    );
-  }
-
-  private addToInterlocutorsMessages(
-    message: Message
-  ): Observable<[void, void, DocumentReference]> {
-    return combineLatest(
-      this.addChatsDoc(message.interlocutorUid),
-      this.addMessagesDoc(message.interlocutorUid, message.uid),
-      this.addInterlocutorsMessageDoc(message)
-    );
-  }
-
-  private addChatsDoc(fromId: string): Observable<void> {
-    return from(
-      this.angularFirestore
-        .collection('chats')
-        .doc(fromId)
-        .set({}, { merge: true })
-    );
-  }
-
-  private addMessagesDoc(fromId: string, toId: string): Observable<void> {
-    return from(
-      this.angularFirestore
-        .collection('chats')
-        .doc(fromId)
-        .collection('messages')
-        .doc(toId)
-        .set({}, { merge: true })
-    );
-  }
-
-  private addMyMessageDoc(message: Message): Observable<DocumentReference> {
-    return from(
-      this.angularFirestore
-        .collection('chats')
-        .doc(message.uid)
-        .collection('messages')
-        .doc(message.interlocutorUid)
-        .collection('sent')
-        .add({ text: message.text, date: message.date })
-    );
-  }
-
-  private addInterlocutorsMessageDoc(
-    message: Message
-  ): Observable<DocumentReference> {
-    return from(
-      this.angularFirestore
-        .collection('chats')
-        .doc(message.interlocutorUid)
-        .collection('messages')
-        .doc(message.uid)
-        .collection('received')
-        .add({ text: message.text, date: message.date })
-    );
   }
 }

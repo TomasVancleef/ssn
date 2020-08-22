@@ -1,6 +1,6 @@
+import { ImageService } from './../image/image.service';
 import { Friend } from './../../model/friend';
-import { User } from './../../model/user';
-import { Observable, of } from 'rxjs';
+import { Observable, of, forkJoin } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
 import { map, filter, catchError, switchMap } from 'rxjs/operators';
@@ -9,7 +9,10 @@ import { map, filter, catchError, switchMap } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class FriendsService {
-  constructor(private angularFirestore: AngularFirestore) {}
+  constructor(
+    private angularFirestore: AngularFirestore,
+    private imageService: ImageService
+  ) {}
 
   loadFriend(uid: string): Observable<Friend[]> {
     return of(uid).pipe(
@@ -19,16 +22,25 @@ export class FriendsService {
           .collection('users')
           .snapshotChanges()
           .pipe(
-            map((users) =>
-              users
-                .map((user) => ({
-                  uid: user.payload.doc.id,
-                  name: user.payload.doc.data()['name'],
-                  myFriend: false,
-                  photo: user.payload.doc.data()['photo'],
-                }))
-                .filter((user) => user.uid != uid)
-            ),
+            map((users) => {
+              return forkJoin(
+                users
+                  .filter((u) => u.payload.doc.id != uid)
+                  .map((user) => {
+                    let userData = user.payload.doc.data();
+                    return this.imageService
+                      .getUserAvatar(userData['photo'])
+                      .pipe(
+                        map((ref) => ({
+                          uid: user.payload.doc.id,
+                          name: userData['name'],
+                          myFriend: false,
+                          photo: ref,
+                        }))
+                      );
+                  })
+              );
+            }),
             catchError((e) => [])
           )
       )

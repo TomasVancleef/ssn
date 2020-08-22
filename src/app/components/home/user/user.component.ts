@@ -1,11 +1,9 @@
-import { ImageService } from '../../../services/image/image.service';
 import { AppState } from '../../../store/app.reducer';
 import { selectAuthUser } from '../../../store/reducers/auth.reducer';
 import { Observable } from 'rxjs';
 import { Component, OnInit } from '@angular/core';
 import { User } from 'src/app/model/user';
-import { Store, select } from '@ngrx/store';
-import { map } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
 import * as AuthActions from '../../../store/actions/auth.actions';
 
 @Component({
@@ -16,10 +14,7 @@ import * as AuthActions from '../../../store/actions/auth.actions';
 export class UserComponent implements OnInit {
   user$: Observable<User>;
 
-  constructor(
-    private store: Store<AppState>,
-    private imageService: ImageService
-  ) {}
+  constructor(private store: Store<AppState>) {}
 
   ngOnInit(): void {
     this.user$ = this.store.select(selectAuthUser);

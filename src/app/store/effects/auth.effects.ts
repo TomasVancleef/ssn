@@ -1,3 +1,4 @@
+import { ImageService } from './../../services/image/image.service';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
 import { AuthService } from './../../services/auth/auth.service';
@@ -9,7 +10,6 @@ import { Store } from '@ngrx/store';
 import * as SidenavActions from '../actions/sidenav.actions';
 import * as FriendsActions from '../actions/friends.actions';
 import * as ChatsActions from '../actions/chats.actions';
-import { combineLatest } from 'rxjs';
 
 @Injectable()
 export class AuthEffects {
@@ -18,7 +18,7 @@ export class AuthEffects {
     private authService: AuthService,
     private router: Router,
     private store: Store,
-    private angularFirestore: AngularFirestore
+    private imageService: ImageService
   ) {}
 
   userLogin$ = createEffect(() =>
@@ -27,14 +27,7 @@ export class AuthEffects {
       switchMap((action) =>
         this.authService.login(action.email, action.password).pipe(
           filter((user) => user != null),
-          map((user) =>
-            AuthActions.login_success({
-              uid: user.uid,
-              name: user.displayName,
-              email: user.email,
-              photo: user.photoURL,
-            })
-          )
+          map((user) => AuthActions.login_success(user))
         )
       )
     )
@@ -82,15 +75,13 @@ export class AuthEffects {
       ofType(AuthActions.auto_login),
       switchMap(() =>
         this.authService.currentUser().pipe(
-          filter((user) => user != null),
-          map((user) =>
-            AuthActions.login_success({
-              name: user.displayName,
-              uid: user.uid,
-              email: user.email,
-              photo: user.photoURL,
-            })
-          )
+          map((user) => {
+            if (user.uid != '') {
+              return AuthActions.login_success(user);
+            } else {
+              return AuthActions.login_failed();
+            }
+          })
         )
       )
     )
@@ -118,24 +109,9 @@ export class AuthEffects {
     this.actions$.pipe(
       ofType(AuthActions.registration_success),
       switchMap((action) =>
-        this.authService.currentUser().pipe(
-          switchMap((user) =>
-            this.angularFirestore
-              .collection('default')
-              .doc('avatar')
-              .get()
-              .pipe(
-                map((avatar) =>
-                  AuthActions.login_success({
-                    name: user.displayName,
-                    uid: user.uid,
-                    email: user.email,
-                    photo: user.photoURL,
-                  })
-                )
-              )
-          )
-        )
+        this.authService
+          .currentUser()
+          .pipe(map((user) => AuthActions.login_success(user)))
       )
     )
   );
@@ -144,7 +120,7 @@ export class AuthEffects {
     this.actions$.pipe(
       ofType(AuthActions.change_avatar),
       switchMap((action) =>
-        this.authService
+        this.imageService
           .updateAvatar(action.file)
           .pipe(map((ref) => AuthActions.change_avatar_success({ ref: ref })))
       )

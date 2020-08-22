@@ -6,25 +6,29 @@ import { AppState } from '../app.reducer';
 
 export interface State {
   user: User;
-  loggedIn: boolean;
+  loggingIn: boolean;
   email: string;
   password: string;
 }
 
 export const initialState: State = {
   user: new User({ uid: '', name: '', email: '' }),
-  loggedIn: false,
+  loggingIn: false,
   email: '',
   password: '',
 };
 
 const authReducer = createReducer(
   initialState,
+  on(AuthActions.auto_login, (state, action) => ({
+    ...state,
+    loggingIn: true,
+  })),
   on(AuthActions.login, (state, action) => ({
     user: new User({ name: '', uid: '', email: '' }),
     email: action.email,
     password: action.password,
-    loggedIn: false,
+    loggingIn: true,
   })),
   on(AuthActions.login_success, (state, action) => ({
     user: new User({
@@ -35,19 +39,23 @@ const authReducer = createReducer(
     }),
     email: '',
     password: '',
-    loggedIn: true,
+    loggingIn: false,
+  })),
+  on(AuthActions.login_failed, (state, action) => ({
+    ...state,
+    loggingIn: false,
   })),
   on(AuthActions.logout, (state) => ({
     user: new User({ name: '', uid: '', email: '' }),
     email: '',
     password: '',
-    loggedIn: false,
+    loggingIn: false,
   })),
   on(AuthActions.registration, (state, action) => ({
     user: new User({ name: action.name, uid: '', email: action.email }),
     email: action.email,
     password: action.password,
-    loggedIn: false,
+    loggingIn: false,
   })),
   on(AuthActions.change_avatar_success, (state, action) => ({
     ...state,
@@ -60,6 +68,11 @@ export function reducer(state: State, action: Action) {
 }
 
 export const selectAuth = (state: AppState) => state.auth;
+
+export const selectAuthLoggingIn = createSelector(
+  selectAuth,
+  (state: State) => state.loggingIn
+);
 
 export const selectAuthUser = createSelector(
   selectAuth,

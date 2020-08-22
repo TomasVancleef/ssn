@@ -6,3 +6,15 @@ mat-toolbar {
 section {
   height: calc(100vh - 120px);
 }
+
+cdk-virtual-scroll-viewport {
+  transform: rotateX(180deg);
+}
+
+.pre-loading {
+  height: 70vh;
+}
+
+.spinner-container {
+  height: 70vh;
+}

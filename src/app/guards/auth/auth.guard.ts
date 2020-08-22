@@ -1,4 +1,4 @@
-import { selectAuth } from './../../store/reducers/auth.reducer';
+import { selectAuthUserUid } from './../../store/reducers/auth.reducer';
 import { Injectable } from '@angular/core';
 import {
   CanActivate,
@@ -24,12 +24,13 @@ export class AuthGuard implements CanActivate {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    return this.store.select(selectAuth).pipe(
-      map((state) => {
-        if (!state.loggedIn) {
+    return this.store.select(selectAuthUserUid).pipe(
+      map((uid) => {
+        let loggedIn = uid != '';
+        if (!loggedIn) {
           this.router.navigate(['login']);
         }
-        return state.loggedIn;
+        return loggedIn;
       })
     );
   }
