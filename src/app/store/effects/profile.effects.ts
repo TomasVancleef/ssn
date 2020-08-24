@@ -1,5 +1,5 @@
 import { ProfileService } from './../../services/profile/profile.service';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, filter } from 'rxjs/operators';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as ProfileActions from '../actions/profile.actions';
 import { Injectable } from '@angular/core';
@@ -14,6 +14,7 @@ export class ProfileEffects {
   setProfileEffect$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProfileActions.setProfile),
+      filter((action) => action.uid != ''),
       switchMap((action) =>
         this.profileService
           .getProfile(action.uid)

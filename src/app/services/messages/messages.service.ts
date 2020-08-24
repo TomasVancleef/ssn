@@ -1,4 +1,4 @@
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, filter } from 'rxjs/operators';
 import { Message } from './../../model/message';
 import { Observable, combineLatest, forkJoin, from } from 'rxjs';
 import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
@@ -57,6 +57,7 @@ export class MessagesService {
 
   loadMessages(uid: string, interlocutorUid: string): Observable<Message[]> {
     return combineLatest(
+      filter(() => uid != ''),
       this.loadSentMessages(uid, interlocutorUid),
       this.loadReceivedMessages(uid, interlocutorUid)
     ).pipe(

@@ -1,6 +1,12 @@
 import { Store } from '@ngrx/store';
 import { MessagesService } from './../../services/messages/messages.service';
-import { map, switchMap, withLatestFrom, concatMap } from 'rxjs/operators';
+import {
+  map,
+  switchMap,
+  withLatestFrom,
+  concatMap,
+  filter,
+} from 'rxjs/operators';
 import { createEffect, Actions, ofType, act } from '@ngrx/effects';
 import { Injectable } from '@angular/core';
 import * as MessagesActions from '../actions/messages.actions';
@@ -20,6 +26,7 @@ export class MessagesEffects {
   loadMessages$ = createEffect(() =>
     this.actions$.pipe(
       ofType(MessagesActions.loadMessages),
+      filter((action) => action.interlocutorUid != ''),
       concatMap((action) =>
         of(action).pipe(
           withLatestFrom(this.store.select(fromAuth.selectAuthUserUid))
@@ -55,7 +62,10 @@ export class MessagesEffects {
       this.actions$.pipe(
         ofType(MessagesActions.markMessagesAsViewed),
         switchMap((action) =>
-          this.messagesService.markMessagesAsViewed(action.uid, action.interlocutorUid)
+          this.messagesService.markMessagesAsViewed(
+            action.uid,
+            action.interlocutorUid
+          )
         )
       ),
     { dispatch: false }

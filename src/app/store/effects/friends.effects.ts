@@ -1,5 +1,5 @@
 import { FriendsService } from './../../services/friends/friends.service';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, filter } from 'rxjs/operators';
 import { createEffect, Actions, ofType } from '@ngrx/effects';
 import { Injectable } from '@angular/core';
 import * as FriendsActions from '../actions/friends.actions';
@@ -14,6 +14,7 @@ export class FriendsEffects {
   friendsLoad$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FriendsActions.loadFriends),
+      filter(action => action.uid != ''),
       switchMap((action) =>
         this.friendsService.loadFriend(action.uid).pipe(
           map((friends) => {

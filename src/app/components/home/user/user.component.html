@@ -5,7 +5,7 @@
     fxLayout="column"
     fxFlex
   >
-    <div fxLayout="row" fxLayoutAlign="center center">
+    <div class="form-div" fxLayout="row" fxLayoutAlign="center center">
       <h1 *ngIf="!nameEditMode">{{ (user$ | async).name }}</h1>
       <form #f="ngForm" (ngSubmit)="saveName(f)">
         <mat-form-field *ngIf="nameEditMode">
@@ -14,6 +14,7 @@
             matInput
             type="text"
             [ngModel]="(user$ | async).name"
+            required
           />
         </mat-form-field>
         <button *ngIf="!nameEditMode" mat-icon-button (click)="editName()">

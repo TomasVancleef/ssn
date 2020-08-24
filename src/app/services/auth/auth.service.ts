@@ -1,7 +1,7 @@
 import { Store } from '@ngrx/store';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { ImageService } from './../image/image.service';
-import { switchMap, filter, map, take } from 'rxjs/operators';
+import { switchMap, filter, map, take, catchError } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { Observable, from, of } from 'rxjs';

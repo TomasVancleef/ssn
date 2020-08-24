@@ -135,22 +135,26 @@ export class AuthEffects {
     )
   );
 
-  changeName$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AuthActions.change_name),
-      switchMap((action) =>
-        this.store
-          .select(fromAuth.selectAuthUserUid)
-          .pipe(
-            switchMap((uid) =>
-              this.authService
-                .updateName(uid, action.name)
-                .pipe(
-                  map(() => AuthActions.change_name_success({ name: name }))
-                )
+  changeName$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.change_name),
+        switchMap((action) =>
+          this.store
+            .select(fromAuth.selectAuthUserUid)
+            .pipe(
+              switchMap((uid) =>
+                this.authService
+                  .updateName(uid, action.name)
+                  .pipe(
+                    map(() =>
+                      AuthActions.change_name_success({ name: action.name })
+                    )
+                  )
+              )
             )
-          )
-      )
-    )
+        )
+      ),
+    { dispatch: false }
   );
 }

@@ -3,7 +3,7 @@ import { Chat } from './../../model/chat';
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable, of, forkJoin } from 'rxjs';
-import { map, switchMap, filter } from 'rxjs/operators';
+import { map, switchMap, filter, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +27,8 @@ export class ChatsService {
             switchMap((docs) => {
               if (docs.length == 0) {
                 return of([]);
-              } else {
+              }
+              else {
                 return forkJoin(
                   docs.map((doc) => {
                     let docData = doc.payload.doc.data();
@@ -50,20 +51,27 @@ export class ChatsService {
                                 lastMessageMy: docData['my'],
                                 photo: ref,
                                 viewed: docData['viewed'],
-                              }))
+                              })),
+                              catchError((e) => of([]))
                             )
-                        )
+                        ),
+                        catchError((e) => of([]))
                       );
                   })
                 );
               }
-            })
+            }),
+            catchError((e) => of([]))
           )
-      )
+      ),
+      catchError((e) => of([]))
     );
   }
 
   getUnviewedMessagesNumber(uid: string): Observable<number> {
+    if (uid == '') {
+      return of(0);
+    }
     return this.angularFirestore
       .collection('messages', (ref) =>
         ref.where('to', '==', uid).where('viewed', '==', false)

@@ -21,7 +21,6 @@ export class UserComponent implements OnInit {
 
   ngOnInit(): void {
     this.user$ = this.store.select(selectAuthUser);
-    this.user$.subscribe((user) => console.log(user));
   }
 
   uploadPhoto(event) {

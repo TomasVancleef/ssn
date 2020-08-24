@@ -1,4 +1,4 @@
-import { switchMap, map } from 'rxjs/operators';
+import { switchMap, map, filter, catchError } from 'rxjs/operators';
 import { ChatsService } from './../../services/chats/chats.service';
 import { createEffect, Actions, ofType } from '@ngrx/effects';
 import * as ChatsActions from '../actions/chats.actions';
@@ -12,6 +12,7 @@ export class ChatsEffects {
   loadChats = createEffect(() =>
     this.actions$.pipe(
       ofType(ChatsActions.loadChats),
+      filter((action) => action.uid != ''),
       switchMap((action) =>
         this.chatsService.loadChats(action.uid).pipe(
           switchMap((chats) =>
@@ -23,7 +24,8 @@ export class ChatsEffects {
                 })
               )
             )
-          )
+          ),
+          catchError((e) => [])
         )
       )
     )
