@@ -9,6 +9,7 @@ section {
 
 cdk-virtual-scroll-viewport {
   transform: rotateX(180deg);
+  align-items: center;
 }
 
 .pre-loading {

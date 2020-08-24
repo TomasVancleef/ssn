@@ -3,23 +3,32 @@
     <app-sidemenu></app-sidemenu>
   </mat-drawer>
   <mat-drawer-content>
-    <!-- <button mat-fab class="mat-fab-bottom-right">
-      <mat-icon>message</mat-icon>
-    </button> -->
     <app-toolbar></app-toolbar>
     <nav mat-tab-nav-bar mat-align-tabs="center">
       <a
         fxFlex
         mat-tab-link
-        *ngFor="let link of links"
-        [routerLink]="link.route"
-        (click)="activeLink = link"
-        [active]="activeLink == link"
+        *ngFor="let page of pages"
+        [routerLink]="page.route"
+        [active]="(activePage$ | async).route == page.route"
+        fxLayout.xs="column"
+        fxLayout="row"
+        fxLayoutAlign="center center"
       >
-        <mat-icon>{{ link.icon }}</mat-icon>
-        <span *ngIf="!mobile">{{ link.title }}</span>
+        <mat-icon
+          [matBadgeHidden]="
+            page.route != '/chats' || (unviewedMessagesNumber$ | async) == 0
+          "
+          [matBadge]="unviewedMessagesNumber$ | async"
+          matBadgeColor="warn"
+          >{{ page.icon }}</mat-icon
+        >
+
+        <span>{{ page.title }}</span>
       </a>
     </nav>
-    <router-outlet></router-outlet>
+    <div [@routeAnimations]="prepareRoute(outlet)">
+      <router-outlet #outlet="outlet"></router-outlet>
+    </div>
   </mat-drawer-content>
 </mat-drawer-container>

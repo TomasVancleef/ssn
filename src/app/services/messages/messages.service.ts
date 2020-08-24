@@ -33,6 +33,7 @@ export class MessagesService {
                 text: message.text,
                 date: message.date,
                 viewed: false,
+                my: false,
               })
           ),
           from(
@@ -46,6 +47,7 @@ export class MessagesService {
                 text: message.text,
                 date: message.date,
                 viewed: false,
+                my: true,
               })
           )
         )
@@ -57,7 +59,14 @@ export class MessagesService {
     return combineLatest(
       this.loadSentMessages(uid, interlocutorUid),
       this.loadReceivedMessages(uid, interlocutorUid)
-    ).pipe(map(([sent, received]) => [].concat(sent).concat(received)));
+    ).pipe(
+      map(([sent, received]) =>
+        []
+          .concat(sent)
+          .concat(received)
+          .sort((a, b) => +b.date - +a.date)
+      )
+    );
   }
 
   loadSentMessages(
@@ -117,28 +126,82 @@ export class MessagesService {
   markMessagesAsViewed(
     uid: string,
     interlocutorUid: string
-  ): Observable<void[]> {
-    return this.angularFirestore
-      .collection('messages', (ref) =>
-        ref
-          .where('to', '==', uid)
-          .where('from', '==', interlocutorUid)
-          .where('viewed', '==', false)
-      )
-      .snapshotChanges()
-      .pipe(
-        switchMap((messages) =>
-          forkJoin(
-            messages.map((message) =>
-              from(
-                this.angularFirestore
-                  .collection('messages')
-                  .doc(message.payload.doc.id)
-                  .update({ viewed: true })
+  ): Observable<[void[], void[], void[]]> {
+    return combineLatest(
+      this.angularFirestore
+        .collection('messages', (ref) =>
+          ref
+            .where('to', '==', uid)
+            .where('from', '==', interlocutorUid)
+            .where('viewed', '==', false)
+        )
+        .get()
+        .pipe(
+          switchMap((messages) =>
+            forkJoin(
+              messages.docs.map((message) =>
+                from(
+                  this.angularFirestore
+                    .collection('messages')
+                    .doc(message.id)
+                    .update({ viewed: true })
+                )
+              )
+            )
+          )
+        ),
+      this.angularFirestore
+        .collection('users')
+        .doc(interlocutorUid)
+        .collection('chats', (ref) =>
+          ref
+            .where('interlocutorsUid', '==', uid)
+            .where('my', '==', true)
+            .where('viewed', '==', false)
+        )
+        .get()
+        .pipe(
+          switchMap((docs) =>
+            forkJoin(
+              docs.docs.map((doc) =>
+                from(
+                  this.angularFirestore
+                    .collection('users')
+                    .doc(interlocutorUid)
+                    .collection('chats')
+                    .doc(doc.id)
+                    .update({ viewed: true })
+                )
+              )
+            )
+          )
+        ),
+      this.angularFirestore
+        .collection('users')
+        .doc(uid)
+        .collection('chats', (ref) =>
+          ref
+            .where('interlocutorsUid', '==', interlocutorUid)
+            .where('my', '==', false)
+            .where('viewed', '==', false)
+        )
+        .get()
+        .pipe(
+          switchMap((docs) =>
+            forkJoin(
+              docs.docs.map((doc) =>
+                from(
+                  this.angularFirestore
+                    .collection('users')
+                    .doc(uid)
+                    .collection('chats')
+                    .doc(doc.id)
+                    .update({ viewed: true })
+                )
               )
             )
           )
         )
-      );
+    );
   }
 }

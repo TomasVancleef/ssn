@@ -1,3 +1,4 @@
+import { LoginComponent } from './../../components/login/login.component';
 import { ImageService } from './../../services/image/image.service';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
@@ -5,11 +6,16 @@ import { AuthService } from './../../services/auth/auth.service';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
 import * as AuthActions from '../actions/auth.actions';
 import { switchMap, map, tap, filter } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import {
+  Router,
+  ActivatedRoute,
+  ActivatedRouteSnapshot,
+} from '@angular/router';
 import { Store } from '@ngrx/store';
 import * as SidenavActions from '../actions/sidenav.actions';
 import * as FriendsActions from '../actions/friends.actions';
 import * as ChatsActions from '../actions/chats.actions';
+import * as fromAuth from '../reducers/auth.reducer';
 
 @Injectable()
 export class AuthEffects {
@@ -27,7 +33,10 @@ export class AuthEffects {
       switchMap((action) =>
         this.authService.login(action.email, action.password).pipe(
           filter((user) => user != null),
-          map((user) => AuthActions.login_success(user))
+          map((user) => {
+            this.router.navigate(['chats']);
+            return AuthActions.login_success(user);
+          })
         )
       )
     )
@@ -40,8 +49,6 @@ export class AuthEffects {
         tap((action) => {
           this.store.dispatch(ChatsActions.loadChats({ uid: action.uid }));
           this.store.dispatch(FriendsActions.loadFriends({ uid: action.uid }));
-
-          this.router.navigate(['home/chats']);
         })
       ),
     { dispatch: false }
@@ -94,12 +101,13 @@ export class AuthEffects {
         this.authService
           .registration(action.name, action.email, action.password)
           .pipe(
-            map((user) =>
-              AuthActions.registration_success({
+            map((user) => {
+              this.router.navigate(['chats']);
+              return AuthActions.registration_success({
                 email: action.email,
                 password: action.password,
-              })
-            )
+              });
+            })
           )
       )
     )
@@ -123,6 +131,25 @@ export class AuthEffects {
         this.imageService
           .updateAvatar(action.file)
           .pipe(map((ref) => AuthActions.change_avatar_success({ ref: ref })))
+      )
+    )
+  );
+
+  changeName$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.change_name),
+      switchMap((action) =>
+        this.store
+          .select(fromAuth.selectAuthUserUid)
+          .pipe(
+            switchMap((uid) =>
+              this.authService
+                .updateName(uid, action.name)
+                .pipe(
+                  map(() => AuthActions.change_name_success({ name: name }))
+                )
+            )
+          )
       )
     )
   );

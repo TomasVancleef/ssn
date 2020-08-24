@@ -1,5 +1,5 @@
 <mat-toolbar color="primary">
   <button pressed mat-icon-button (click)="openSidenav()"><mat-icon>menu</mat-icon></button>
-  <div fxFlex></div>
+  <div class="title-div" fxFlex>{{(page$ | async).title}}</div>
   <img src="/assets/images/logo.svg">
 </mat-toolbar>

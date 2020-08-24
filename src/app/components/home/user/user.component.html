@@ -1,12 +1,41 @@
 <section>
-  <mat-list fxLayoutAlign="start center" fxLayoutGap="10px" fxLayout="column" fxFlex>
-    <h1>{{ (user$ | async).name }}</h1>
+  <mat-list
+    fxLayoutAlign="start center"
+    fxLayoutGap="10px"
+    fxLayout="column"
+    fxFlex
+  >
+    <div fxLayout="row" fxLayoutAlign="center center">
+      <h1 *ngIf="!nameEditMode">{{ (user$ | async).name }}</h1>
+      <form #f="ngForm" (ngSubmit)="saveName(f)">
+        <mat-form-field *ngIf="nameEditMode">
+          <input
+            name="name"
+            matInput
+            type="text"
+            [ngModel]="(user$ | async).name"
+          />
+        </mat-form-field>
+        <button *ngIf="!nameEditMode" mat-icon-button (click)="editName()">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button *ngIf="nameEditMode" mat-icon-button type="submit">
+          <mat-icon>save</mat-icon>
+        </button>
+        <button *ngIf="nameEditMode" mat-icon-button (click)="denyNameChange()">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </form>
+    </div>
     <h1>{{ (user$ | async).email }}</h1>
-    <img
-      mat-card-avatar
-      [src]="(user$ | async).photo"
-    />
+    <img mat-card-avatar [src]="(user$ | async).photo" />
     <button mat-stroked-button (click)="fileInput.click()">Изменить</button>
-    <input #fileInput hidden type="file" (change)="uploadPhoto($event)" accept=".png,.jpg" />
+    <input
+      #fileInput
+      hidden
+      type="file"
+      (change)="uploadPhoto($event)"
+      accept=".png,.jpg"
+    />
   </mat-list>
 </section>

@@ -1,9 +1,14 @@
 img {
-  background-size: cover;
-  height: 10em;
-  width: 10em;
+  border-radius: 50%;
+  object-fit: cover;
+  height: 14em;
+  width: 14em;
 }
 
 section {
   height: 80%;
+}
+
+h1 {
+  margin: 0px;
 }

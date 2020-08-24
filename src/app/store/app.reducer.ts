@@ -4,6 +4,7 @@ import * as fromChats from './reducers/chats.reducer';
 import * as fromFriends from './reducers/friends.reducer';
 import * as fromMessages from './reducers/messages.reducer';
 import * as fromProfile from './reducers/profile.reducer';
+import * as fromPages from './reducers/pages.reducer';
 
 import { ActionReducerMap } from '@ngrx/store';
 
@@ -14,6 +15,7 @@ export interface AppState {
   friends: fromFriends.State;
   messages: fromMessages.State;
   profile: fromProfile.State;
+  pages: fromPages.State;
 }
 
 export const appReducer: ActionReducerMap<AppState> = {
@@ -23,4 +25,5 @@ export const appReducer: ActionReducerMap<AppState> = {
   friends: fromFriends.reducer,
   messages: fromMessages.reducer,
   profile: fromProfile.reducer,
+  pages: fromPages.reducer,
 };

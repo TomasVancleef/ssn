@@ -13,7 +13,7 @@ export interface State {
 
 export const initialState: State = {
   user: new User({ uid: '', name: '', email: '' }),
-  loggingIn: false,
+  loggingIn: true,
   email: '',
   password: '',
 };
@@ -60,6 +60,10 @@ const authReducer = createReducer(
   on(AuthActions.change_avatar_success, (state, action) => ({
     ...state,
     user: new User({ ...state.user, photo: action.ref }),
+  })),
+  on(AuthActions.change_name_success, (state, action) => ({
+    ...state,
+    user: new User({ ...state.user, name: action.name }),
   }))
 );
 

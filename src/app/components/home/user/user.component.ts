@@ -1,3 +1,4 @@
+import { NgForm } from '@angular/forms';
 import { AppState } from '../../../store/app.reducer';
 import { selectAuthUser } from '../../../store/reducers/auth.reducer';
 import { Observable } from 'rxjs';
@@ -13,16 +14,33 @@ import * as AuthActions from '../../../store/actions/auth.actions';
 })
 export class UserComponent implements OnInit {
   user$: Observable<User>;
+  nameEditMode = false;
+  newName: string;
 
   constructor(private store: Store<AppState>) {}
 
   ngOnInit(): void {
     this.user$ = this.store.select(selectAuthUser);
+    this.user$.subscribe((user) => console.log(user));
   }
 
   uploadPhoto(event) {
     this.store.dispatch(
       AuthActions.change_avatar({ file: event.target.files[0] })
     );
+  }
+
+  editName() {
+    this.nameEditMode = true;
+  }
+
+  saveName(form: NgForm) {
+    let newName = form.value.name;
+    this.store.dispatch(AuthActions.change_name({ name: newName }));
+    this.nameEditMode = false;
+  }
+
+  denyNameChange() {
+    this.nameEditMode = false;
   }
 }

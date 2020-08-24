@@ -14,9 +14,16 @@ export class ChatsEffects {
       ofType(ChatsActions.loadChats),
       switchMap((action) =>
         this.chatsService.loadChats(action.uid).pipe(
-          map((chats) => {
-            return ChatsActions.loadChatsSuccess({ chats: chats });
-          })
+          switchMap((chats) =>
+            this.chatsService.getUnviewedMessagesNumber(action.uid).pipe(
+              map((unviewedMessagesNumber) =>
+                ChatsActions.loadChatsSuccess({
+                  chats: chats,
+                  unviewedMessagesNumber: unviewedMessagesNumber,
+                })
+              )
+            )
+          )
         )
       )
     )

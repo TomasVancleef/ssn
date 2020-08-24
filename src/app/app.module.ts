@@ -27,6 +27,7 @@ import { MessagesComponent } from './components/home/messages/messages.component
 import { MessageComponent } from './components/home/messages/message/message.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { ProfileComponent } from './components/home/profile/profile.component';
+import { StoreRouterConnectingModule } from '@ngrx/router-store';
 
 @NgModule({
   declarations: [
@@ -43,7 +44,7 @@ import { ProfileComponent } from './components/home/profile/profile.component';
     FriendComponent,
     MessagesComponent,
     MessageComponent,
-    ProfileComponent
+    ProfileComponent,
   ],
   imports: [
     BrowserModule,
@@ -55,9 +56,10 @@ import { ProfileComponent } from './components/home/profile/profile.component';
     FormsModule,
     AngularFireModule.initializeApp(environment.firebase),
     FlexLayoutModule,
-    ScrollingModule
+    ScrollingModule,
+    StoreRouterConnectingModule.forRoot(),
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

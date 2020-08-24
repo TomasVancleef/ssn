@@ -25,7 +25,7 @@ export const registration_failed = createAction('registration failed');
 
 export const change_avatar = createAction(
   'change avatar',
-  props<{ file: File}>()
+  props<{ file: File }>()
 );
 
 export const change_avatar_image_uploaded = createAction(
@@ -36,4 +36,14 @@ export const change_avatar_image_uploaded = createAction(
 export const change_avatar_success = createAction(
   'change avatar success',
   props<{ ref: string }>()
+);
+
+export const change_name = createAction(
+  'change name',
+  props<{ name: string }>()
+);
+
+export const change_name_success = createAction(
+  'change name success',
+  props<{ name: string }>()
 );

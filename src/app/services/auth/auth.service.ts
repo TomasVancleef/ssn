@@ -87,6 +87,12 @@ export class AuthService {
     );
   }
 
+  updateName(uid: string, name: string): Observable<void> {
+    return from(
+      this.angularFirestore.collection('users').doc(uid).update({ name: name })
+    );
+  }
+
   currentUser(): Observable<User> {
     return this.angularFireAuth.user.pipe(
       switchMap((fireUser) => {

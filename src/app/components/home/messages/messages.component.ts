@@ -36,6 +36,7 @@ export class MessagesComponent implements OnInit, AfterViewChecked, OnDestroy {
   scrolledSubscription: Subscription;
   scrolled = false;
   messagesEmpty: Observable<boolean>;
+  viewedSubscription: Subscription;
 
   constructor(private store: Store, private route: ActivatedRoute) {}
 
@@ -64,9 +65,12 @@ export class MessagesComponent implements OnInit, AfterViewChecked, OnDestroy {
       MessagesActions.loadMessages({ interlocutorUid: this.interlocutorUid })
     );
 
-    this.messages$.pipe(delay(3000), take(1)).subscribe((messages) => {
+    this.viewedSubscription = this.messages$.pipe(delay(2000)).subscribe((messages) => {
       this.store.dispatch(
-        MessagesActions.markMessagesAsViewed({ uid: this.uid, interlocutorUid: this.interlocutorUid })
+        MessagesActions.markMessagesAsViewed({
+          uid: this.uid,
+          interlocutorUid: this.interlocutorUid,
+        })
       );
     });
   }
@@ -108,6 +112,7 @@ export class MessagesComponent implements OnInit, AfterViewChecked, OnDestroy {
   ngOnDestroy(): void {
     this.scrolledSubscription.unsubscribe();
     this.paramsSubscription.unsubscribe();
+    this.viewedSubscription.unsubscribe();
   }
 
   @HostListener('mousewheel', ['$event']) onMousewheel(event) {

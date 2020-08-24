@@ -35,7 +35,7 @@ export class ProfileComponent implements OnInit {
     this.profile$
       .pipe(take(1))
       .subscribe((profile) =>
-        this.router.navigate(['home/messages/' + profile.uid])
+        this.router.navigate(['messages/' + profile.uid])
       );
   }
 }

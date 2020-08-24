@@ -19,7 +19,7 @@
     itemSize="50"
     class="viewport"
     fxLayout="column"
-    fxLayoutAlign="end start"
+    fxLayoutAlign="center center"
   >
     <div *cdkVirtualFor="let message of messages$ | async">
       <app-message [message]="message"></app-message>

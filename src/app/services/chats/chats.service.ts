@@ -21,7 +21,7 @@ export class ChatsService {
         this.angularFirestore
           .collection('users')
           .doc(uid)
-          .collection('chats')
+          .collection('chats', (ref) => ref.orderBy('date', 'desc'))
           .snapshotChanges()
           .pipe(
             switchMap((docs) => {
@@ -46,6 +46,8 @@ export class ChatsService {
                                   'name'
                                 ],
                                 lastMessage: docData['text'],
+                                lastMessageDate: docData['date'],
+                                lastMessageMy: docData['my'],
                                 photo: ref,
                                 viewed: docData['viewed'],
                               }))
@@ -59,5 +61,14 @@ export class ChatsService {
           )
       )
     );
+  }
+
+  getUnviewedMessagesNumber(uid: string): Observable<number> {
+    return this.angularFirestore
+      .collection('messages', (ref) =>
+        ref.where('to', '==', uid).where('viewed', '==', false)
+      )
+      .valueChanges()
+      .pipe(map((docs) => docs.length));
   }
 }

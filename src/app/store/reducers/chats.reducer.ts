@@ -8,12 +8,14 @@ export interface State {
   loading: boolean;
   chats: Chat[];
   empty: boolean;
+  unviewedMessagesNumber: number;
 }
 
 const initialState: State = {
   loading: false,
   chats: [],
   empty: false,
+  unviewedMessagesNumber: 0,
 };
 
 const chatsReducer = createReducer(
@@ -23,12 +25,14 @@ const chatsReducer = createReducer(
     chats: [],
     loading: true,
     empty: false,
+    unviewedMessagesNumber: 0,
   })),
   on(ChatsActions.loadChatsSuccess, (state, action) => ({
     ...state,
     chats: action.chats,
     loading: false,
     empty: action.chats.length == 0,
+    unviewedMessagesNumber: action.unviewedMessagesNumber,
   })),
   on(ChatsActions.clearChats, (state, action) => initialState)
 );
@@ -51,4 +55,9 @@ export const selectChatsLoading = createSelector(
 export const selectChatsEmpty = createSelector(
   selectChatsState,
   (state) => state.empty
+);
+
+export const selectChatsUnviewedMessagesNumber = createSelector(
+  selectChatsState,
+  (state) => state.unviewedMessagesNumber
 );

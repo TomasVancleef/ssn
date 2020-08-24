@@ -17,7 +17,6 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.loggingIn$ = this.store.select(fromAuth.selectAuthLoggingIn);
-    this.store.dispatch(AuthActions.auto_login());
   }
 
   login(form: NgForm) {
