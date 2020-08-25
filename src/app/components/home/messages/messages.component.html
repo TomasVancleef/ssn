@@ -1,4 +1,12 @@
 <section fxFlex fxLayout="column">
+  <mat-toolbar class="header" color="primary">
+    <button pressed mat-icon-button (click)="toChats()">
+      <mat-icon>keyboard_backspace</mat-icon>
+    </button>
+    <div class="title-div" fxFlex></div>
+    <img src="/assets/images/logo.svg" />
+  </mat-toolbar>
+
   <div
     class="spinner-container"
     fxFlex
@@ -26,7 +34,7 @@
     </div>
   </cdk-virtual-scroll-viewport>
   <form #f="ngForm" (ngSubmit)="sendMessage(f)" autocomplete="off">
-    <mat-toolbar>
+    <mat-toolbar class="footer">
       <mat-form-field fxFlex>
         <input name="message" type="search" matInput ngModel required />
       </mat-form-field>

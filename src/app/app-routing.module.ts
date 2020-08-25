@@ -44,15 +44,16 @@ const routes: Routes = [
         component: UserComponent,
         data: { animation: 'UserPage' },
       },
-      {
-        path: 'messages/:id',
-        component: MessagesComponent,
-      },
+
       {
         path: 'profile/:uid',
         component: ProfileComponent,
       },
     ],
+  },
+  {
+    path: 'messages/:id',
+    component: MessagesComponent,
   },
 ];
 

@@ -7,9 +7,13 @@ div {
 }
 
 .spinner-container {
-  height: 70vh;
+  height: 100%;
 }
 
 .pre-loading {
-  height: 70vh;
+  height: 100%;
+}
+
+cdk-virtual-scroll-viewport {
+  height: 100%;
 }

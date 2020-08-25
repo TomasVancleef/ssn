@@ -11,6 +11,7 @@
     class="viewport"
     fxLayout="column"
     fxLayoutAlign="start start"
+    *ngIf="!(chatsEmpty$ | async)"
   >
     <div *cdkVirtualFor="let chat of chats$ | async" fxFlex>
       <app-chat [chat]="chat"></app-chat>

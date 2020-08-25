@@ -14,7 +14,7 @@ import * as fromAuth from '../../../store/reducers/auth.reducer';
 import * as fromMessages from '../../../store/reducers/messages.reducer';
 import { take, delay } from 'rxjs/operators';
 import { Observable, Subscription } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { firestore } from 'firebase/app';
 import Timestamp = firestore.Timestamp;
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
@@ -38,7 +38,11 @@ export class MessagesComponent implements OnInit, AfterViewChecked, OnDestroy {
   messagesEmpty: Observable<boolean>;
   viewedSubscription: Subscription;
 
-  constructor(private store: Store, private route: ActivatedRoute) {}
+  constructor(
+    private store: Store,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.paramsSubscription = this.route.params.subscribe(
@@ -56,27 +60,23 @@ export class MessagesComponent implements OnInit, AfterViewChecked, OnDestroy {
       () => (this.scrolled = false)
     );
 
-    this.store
-      .select(fromAuth.selectAuthUserUid)
-      .pipe(take(1))
-      .subscribe((uid) => (this.uid = uid));
-
-    this.store.dispatch(
-      MessagesActions.loadMessages({ interlocutorUid: this.interlocutorUid })
-    );
-
-    this.viewedSubscription = this.messages$.pipe(delay(2000)).subscribe((messages) => {
-      this.store.dispatch(
-        MessagesActions.markMessagesAsViewed({
-          uid: this.uid,
-          interlocutorUid: this.interlocutorUid,
-        })
-      );
-    });
+    this.viewedSubscription = this.messages$
+      .pipe(delay(2000))
+      .subscribe((messages) => {
+        this.store.dispatch(
+          MessagesActions.markMessagesAsViewed({
+            interlocutorUid: this.interlocutorUid,
+          })
+        );
+      });
   }
 
   ngAfterViewChecked() {
     this.scrollToBottom();
+  }
+
+  toChats() {
+    this.router.navigate(['/chats']);
   }
 
   scrollToBottom() {

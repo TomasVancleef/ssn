@@ -1,15 +1,16 @@
-mat-toolbar {
+.footer {
   bottom: 0px;
   position: fixed;
+  height: 50px;
 }
 
 section {
-  height: calc(100vh - 120px);
+  height: calc(100vh - 50px);
 }
 
 cdk-virtual-scroll-viewport {
   transform: rotateX(180deg);
-  align-items: center;
+  height: 100%;
 }
 
 .pre-loading {
@@ -18,4 +19,16 @@ cdk-virtual-scroll-viewport {
 
 .spinner-container {
   height: 70vh;
+}
+
+img {
+  height: 100%;
+}
+
+.header {
+  height: 50px;
+}
+
+.title-div {
+  text-align: center;
 }

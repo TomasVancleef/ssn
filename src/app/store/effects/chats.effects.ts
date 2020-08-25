@@ -4,6 +4,7 @@ import { createEffect, Actions, ofType } from '@ngrx/effects';
 import * as ChatsActions from '../actions/chats.actions';
 
 import { Injectable } from '@angular/core';
+import { of } from 'rxjs';
 
 @Injectable()
 export class ChatsEffects {
@@ -22,10 +23,10 @@ export class ChatsEffects {
                   chats: chats,
                   unviewedMessagesNumber: unviewedMessagesNumber,
                 })
-              )
+              ),
+              catchError((e, caught) => caught)
             )
-          ),
-          catchError((e) => [])
+          )
         )
       )
     )

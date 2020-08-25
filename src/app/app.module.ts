@@ -28,6 +28,7 @@ import { MessageComponent } from './components/home/messages/message/message.com
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { ProfileComponent } from './components/home/profile/profile.component';
 import { StoreRouterConnectingModule } from '@ngrx/router-store';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 @NgModule({
   declarations: [
@@ -58,6 +59,7 @@ import { StoreRouterConnectingModule } from '@ngrx/router-store';
     FlexLayoutModule,
     ScrollingModule,
     StoreRouterConnectingModule.forRoot(),
+    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
   ],
   providers: [],
   bootstrap: [AppComponent],

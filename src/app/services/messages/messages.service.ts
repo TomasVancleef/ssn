@@ -1,6 +1,6 @@
 import { map, switchMap, filter } from 'rxjs/operators';
 import { Message } from './../../model/message';
-import { Observable, combineLatest, forkJoin, from } from 'rxjs';
+import { Observable, combineLatest, forkJoin, from, of } from 'rxjs';
 import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
 
@@ -56,8 +56,10 @@ export class MessagesService {
   }
 
   loadMessages(uid: string, interlocutorUid: string): Observable<Message[]> {
+    if (uid == '' || interlocutorUid == '') {
+      return of([]);
+    }
     return combineLatest(
-      filter(() => uid != ''),
       this.loadSentMessages(uid, interlocutorUid),
       this.loadReceivedMessages(uid, interlocutorUid)
     ).pipe(
@@ -136,18 +138,18 @@ export class MessagesService {
             .where('from', '==', interlocutorUid)
             .where('viewed', '==', false)
         )
-        .get()
+        .snapshotChanges()
         .pipe(
           switchMap((messages) =>
             forkJoin(
-              messages.docs.map((message) =>
-                from(
+              messages.map((message) => {
+                return from(
                   this.angularFirestore
                     .collection('messages')
-                    .doc(message.id)
+                    .doc(message.payload.doc.id)
                     .update({ viewed: true })
-                )
-              )
+                );
+              })
             )
           )
         ),

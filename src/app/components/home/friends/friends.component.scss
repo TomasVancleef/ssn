@@ -1,7 +1,6 @@
 section {
-  height: 100%;
+  height: calc(100vh - 50px);
 }
-
 
 mat-nav-list {
   height: calc(100vh - 120px - 50px);

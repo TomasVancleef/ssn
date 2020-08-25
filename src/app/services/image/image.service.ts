@@ -1,6 +1,6 @@
 import { AngularFirestore } from '@angular/fire/firestore';
-import { map, switchMap, filter, catchError } from 'rxjs/operators';
-import { Observable, from, of } from 'rxjs';
+import { map, switchMap, filter } from 'rxjs/operators';
+import { Observable, from } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { Store } from '@ngrx/store';
@@ -35,17 +35,18 @@ export class ImageService {
   }
 
   uploadPhoto(file: File): Observable<string> {
-    return this.store.select(fromAuth.selectAuthUserUid).pipe(
-      switchMap((uid) =>
-        from(
-          this.angularFireStorage.upload(
-            '/avatars/' + uid + '/avatar.png',
-            file
-          )
-        ).pipe(map((result) => '/avatars/' + uid + '/avatar.png'))
-      ),
-      catchError((e) => of(''))
-    );
+    return this.store
+      .select(fromAuth.selectAuthUserUid)
+      .pipe(
+        switchMap((uid) =>
+          from(
+            this.angularFireStorage.upload(
+              '/avatars/' + uid + '/avatar.png',
+              file
+            )
+          ).pipe(map((result) => '/avatars/' + uid + '/avatar.png'))
+        )
+      );
   }
 
   getUserAvatar(fileName: string) {

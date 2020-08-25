@@ -9,12 +9,16 @@ mat-drawer-content {
 }
 
 nav {
-  height: 50px;
+  height: 66px;
   background-color: white;
 }
 
 mat-drawer {
   width: 30%;
+}
+
+a {
+  height: 66px;
 }
 
 @media (max-width: 600px) {

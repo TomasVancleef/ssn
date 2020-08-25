@@ -20,6 +20,10 @@ export const sendMessageSuccess = createAction(
 );
 
 export const markMessagesAsViewed = createAction(
-  'mart messages as viewed',
-  props<{ uid: string; interlocutorUid: string }>()
+  'mark messages as viewed',
+  props<{ interlocutorUid: string }>()
+);
+
+export const markMessagesAsViewedSuccess = createAction(
+  'mark messages as viewed success'
 );

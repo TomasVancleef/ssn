@@ -22,7 +22,7 @@ export class FriendsService {
           .collection('users')
           .snapshotChanges()
           .pipe(
-            map((users) => {
+            switchMap((users) => {
               return forkJoin(
                 users
                   .filter((u) => u.payload.doc.id != uid)
@@ -41,8 +41,7 @@ export class FriendsService {
                       );
                   })
               );
-            }),
-            catchError((e) => [])
+            })
           )
       )
     );
