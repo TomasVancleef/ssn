@@ -1,3 +1,4 @@
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoginComponent } from './../../components/login/login.component';
 import { ImageService } from './../../services/image/image.service';
 import { AngularFirestore } from '@angular/fire/firestore';
@@ -5,7 +6,14 @@ import { Injectable } from '@angular/core';
 import { AuthService } from './../../services/auth/auth.service';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
 import * as AuthActions from '../actions/auth.actions';
-import { switchMap, map, tap, filter } from 'rxjs/operators';
+import {
+  switchMap,
+  map,
+  tap,
+  filter,
+  catchError,
+  withLatestFrom,
+} from 'rxjs/operators';
 import {
   Router,
   ActivatedRoute,
@@ -16,6 +24,7 @@ import * as SidenavActions from '../actions/sidenav.actions';
 import * as FriendsActions from '../actions/friends.actions';
 import * as ChatsActions from '../actions/chats.actions';
 import * as fromAuth from '../reducers/auth.reducer';
+import { of } from 'rxjs';
 
 @Injectable()
 export class AuthEffects {
@@ -24,7 +33,8 @@ export class AuthEffects {
     private authService: AuthService,
     private router: Router,
     private store: Store,
-    private imageService: ImageService
+    private imageService: ImageService,
+    private matSnackBar: MatSnackBar
   ) {}
 
   userLogin$ = createEffect(() =>
@@ -32,10 +42,21 @@ export class AuthEffects {
       ofType(AuthActions.login),
       switchMap((action) =>
         this.authService.login(action.email, action.password).pipe(
-          filter((user) => user != null),
+          filter((user) => user.uid != ''),
           map((user) => {
-            this.router.navigate(['chats']);
-            return AuthActions.login_success(user);
+            if (user.verified) {
+              this.router.navigate(['/chats']);
+              return AuthActions.login_success(user);
+            } else {
+              this.router.navigate(['/verify_email']);
+              return AuthActions.login_success(user);
+            }
+          }),
+          catchError((e) => {
+            this.matSnackBar.open(e.message, '', {
+              duration: 3000,
+            });
+            return of(e).pipe(map(() => AuthActions.login_failed()));
           })
         )
       )
@@ -47,8 +68,8 @@ export class AuthEffects {
       this.actions$.pipe(
         ofType(AuthActions.login_success),
         tap((action) => {
-          this.store.dispatch(ChatsActions.loadChats({ uid: action.uid }));
-          this.store.dispatch(FriendsActions.loadFriends({ uid: action.uid }));
+          this.store.dispatch(ChatsActions.loadChats());
+          this.store.dispatch(FriendsActions.loadFriends());
         })
       ),
     { dispatch: false }
@@ -83,8 +104,8 @@ export class AuthEffects {
       switchMap(() =>
         this.authService.currentUser().pipe(
           map((user) => {
-            if (user.uid != '') {
-              return AuthActions.login_success(user);
+            if (user.uid != '' && user.verified) {
+              return AuthActions.auto_login_success(user);
             } else {
               return AuthActions.login_failed();
             }
@@ -92,6 +113,24 @@ export class AuthEffects {
         )
       )
     )
+  );
+
+  autoLoginSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.auto_login_success),
+        tap(() => {
+          this.store.dispatch(ChatsActions.loadChats());
+          this.store.dispatch(FriendsActions.loadFriends());
+          if (
+            this.router.url == '/login' ||
+            this.router.url == '/registration'
+          ) {
+            this.router.navigate(['/chats']);
+          }
+        })
+      ),
+    { dispatch: false }
   );
 
   userRegistration$ = createEffect(() =>
@@ -102,7 +141,7 @@ export class AuthEffects {
           .registration(action.name, action.email, action.password)
           .pipe(
             map((user) => {
-              this.router.navigate(['chats']);
+              this.router.navigate(['/verify-email']);
               return AuthActions.registration_success({
                 email: action.email,
                 password: action.password,
@@ -127,9 +166,11 @@ export class AuthEffects {
   changeAvatar$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.change_avatar),
-      switchMap((action) =>
+      withLatestFrom(this.store.select(fromAuth.selectAuthUserUid)),
+      filter(([action, uid]) => uid != ''),
+      switchMap(([action, uid]) =>
         this.imageService
-          .updateAvatar(action.file)
+          .updateAvatar(uid, action.file)
           .pipe(map((ref) => AuthActions.change_avatar_success({ ref: ref })))
       )
     )
@@ -139,19 +180,13 @@ export class AuthEffects {
     () =>
       this.actions$.pipe(
         ofType(AuthActions.change_name),
-        switchMap((action) =>
-          this.store
-            .select(fromAuth.selectAuthUserUid)
+        withLatestFrom(this.store.select(fromAuth.selectAuthUserUid)),
+        filter(([action, uid]) => uid != ''),
+        switchMap(([action, uid]) =>
+          this.authService
+            .updateName(uid, action.name)
             .pipe(
-              switchMap((uid) =>
-                this.authService
-                  .updateName(uid, action.name)
-                  .pipe(
-                    map(() =>
-                      AuthActions.change_name_success({ name: action.name })
-                    )
-                  )
-              )
+              map(() => AuthActions.change_name_success({ name: action.name }))
             )
         )
       ),

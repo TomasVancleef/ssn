@@ -12,6 +12,10 @@ export const logout_success = createAction('logout success');
 export const logout_failed = createAction('logout failed');
 
 export const auto_login = createAction('auto login');
+export const auto_login_success = createAction(
+  'auto login success',
+  props<User>()
+);
 
 export const registration = createAction(
   'registration',

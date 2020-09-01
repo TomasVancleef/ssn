@@ -30,12 +30,12 @@ export class LoggedOutGuard implements CanActivate {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    return this.authService.currentUser().pipe(
-      map((user) => {
+    return this.store.select(fromAuth.selectAuthUserUid).pipe(
+      map((uid) => {
         {
-          let loggedIn = user.uid != '';
+          let loggedIn = uid != '';
           if (loggedIn) {
-            this.router.navigate(['chats']);
+            this.router.navigate(['/chats']);
           }
           return !loggedIn;
         }

@@ -27,7 +27,7 @@
         <span>{{ page.title }}</span>
       </a>
     </nav>
-    <div [@routeAnimations]="prepareRoute(outlet)">
+    <div class="router-div" [@routeAnimations]="prepareRoute(outlet)">
       <router-outlet #outlet="outlet"></router-outlet>
     </div>
   </mat-drawer-content>

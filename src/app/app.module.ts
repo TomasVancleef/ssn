@@ -29,6 +29,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { ProfileComponent } from './components/home/profile/profile.component';
 import { StoreRouterConnectingModule } from '@ngrx/router-store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { VerifyEmailComponent } from './components/verify-email/verify-email.component';
 
 @NgModule({
   declarations: [
@@ -46,6 +47,7 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
     MessagesComponent,
     MessageComponent,
     ProfileComponent,
+    VerifyEmailComponent,
   ],
   imports: [
     BrowserModule,

@@ -9,3 +9,5 @@ export const setProfileSuccess = createAction(
   'set profile success',
   props<{ profile: Profile }>()
 );
+
+export const setProfileFailed = createAction('set profile failed');

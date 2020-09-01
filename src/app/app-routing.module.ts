@@ -1,3 +1,5 @@
+import { VerifyEmailGuard } from './guards/verify-email/verify-email.guard';
+import { VerifyEmailComponent } from './components/verify-email/verify-email.component';
 import { LoggedOutGuard } from './guards/logged-out/logged-out.guard';
 import { ProfileComponent } from './components/home/profile/profile.component';
 import { ChatsComponent } from './components/home/chats/chats.component';
@@ -19,14 +21,20 @@ const routes: Routes = [
     canActivate: [LoggedOutGuard],
   },
   {
+    path: 'verify_email',
+    component: VerifyEmailComponent,
+    canActivate: [VerifyEmailGuard],
+  },
+  {
     path: '',
     component: HomeComponent,
+    canActivate: [AuthGuard],
     canActivateChild: [AuthGuard],
     children: [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'chats',
+        redirectTo: '/login',
       },
       {
         path: 'chats',
@@ -55,6 +63,7 @@ const routes: Routes = [
     path: 'messages/:id',
     component: MessagesComponent,
   },
+  { path: '**', redirectTo: '/login' },
 ];
 
 @NgModule({

@@ -36,6 +36,19 @@ const authReducer = createReducer(
       uid: action.uid,
       email: action.email,
       photo: action.photo,
+      verified: action.verified,
+    }),
+    email: '',
+    password: '',
+    loggingIn: false,
+  })),
+  on(AuthActions.auto_login_success, (state, action) => ({
+    user: new User({
+      name: action.name,
+      uid: action.uid,
+      email: action.email,
+      photo: action.photo,
+      verified: action.verified,
     }),
     email: '',
     password: '',
@@ -45,7 +58,7 @@ const authReducer = createReducer(
     ...state,
     loggingIn: false,
   })),
-  on(AuthActions.logout, (state) => ({
+  on(AuthActions.logout_success, (state) => ({
     user: new User({ name: '', uid: '', email: '' }),
     email: '',
     password: '',
@@ -86,4 +99,9 @@ export const selectAuthUser = createSelector(
 export const selectAuthUserUid = createSelector(
   selectAuth,
   (state: State) => state.user.uid
+);
+
+export const selectAuthUserVerified = createSelector(
+  selectAuth,
+  (state: State) => state.user.verified
 );

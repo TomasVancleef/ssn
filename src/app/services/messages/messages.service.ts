@@ -1,4 +1,4 @@
-import { map, switchMap, filter } from 'rxjs/operators';
+import { map, switchMap, filter, take } from 'rxjs/operators';
 import { Message } from './../../model/message';
 import { Observable, combineLatest, forkJoin, from, of } from 'rxjs';
 import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
@@ -10,10 +10,10 @@ import { Injectable } from '@angular/core';
 export class MessagesService {
   constructor(private angularFirestore: AngularFirestore) {}
 
-  sendMessage(message: Message): Observable<any> {
+  sendMessage(uid: string, message: Message): Observable<any> {
     return from(
       this.angularFirestore.collection('messages').add({
-        from: message.uid,
+        from: uid,
         to: message.interlocutorUid,
         text: message.text,
         date: message.date,
@@ -27,9 +27,9 @@ export class MessagesService {
               .collection('users')
               .doc(message.interlocutorUid)
               .collection('chats')
-              .doc(message.uid)
+              .doc(uid)
               .set({
-                interlocutorsUid: message.uid,
+                interlocutorsUid: uid,
                 text: message.text,
                 date: message.date,
                 viewed: false,
@@ -39,7 +39,7 @@ export class MessagesService {
           from(
             this.angularFirestore
               .collection('users')
-              .doc(message.uid)
+              .doc(uid)
               .collection('chats')
               .doc(message.interlocutorUid)
               .set({
@@ -59,19 +59,41 @@ export class MessagesService {
     if (uid == '' || interlocutorUid == '') {
       return of([]);
     }
-    return combineLatest(
-      this.loadSentMessages(uid, interlocutorUid),
-      this.loadReceivedMessages(uid, interlocutorUid)
-    ).pipe(
-      map(([sent, received]) =>
-        []
-          .concat(sent)
-          .concat(received)
-          .sort((a, b) => +b.date - +a.date)
-      )
+    return this.checkChat(uid, interlocutorUid).pipe(
+      switchMap((exist) => {
+        if (!exist) {
+          throw 'no chat';
+        }
+        return combineLatest(
+          this.loadSentMessages(uid, interlocutorUid),
+          this.loadReceivedMessages(uid, interlocutorUid)
+        ).pipe(
+          map(([sent, received]) =>
+            []
+              .concat(sent)
+              .concat(received)
+              .sort((a, b) => +b.date - +a.date)
+          )
+        );
+      })
     );
   }
 
+  checkChat(uid: string, interlocutorsUid: string): Observable<boolean> {
+    return this.angularFirestore
+      .collection('users')
+      .doc(uid)
+      .collection('chats', (ref) =>
+        ref.where('interlocutorsUid', '==', interlocutorsUid)
+      )
+      .get()
+
+      .pipe(
+        map((doc) => {
+          return !doc.empty;
+        })
+      );
+  }
   loadSentMessages(
     uid: string,
     interlocutorUid: string

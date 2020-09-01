@@ -16,20 +16,15 @@ export class ImageService {
     private store: Store
   ) {}
 
-  updateAvatar(file: File): Observable<string> {
-    return this.store.select(fromAuth.selectAuthUserUid).pipe(
-      filter((uid) => uid != ''),
-      switchMap((uid) =>
-        this.uploadPhoto(file).pipe(
-          switchMap((fileName) =>
-            from(
-              this.angularFirestore
-                .collection('users')
-                .doc(uid)
-                .update({ photo: fileName })
-            ).pipe(switchMap(() => this.getUserAvatar(fileName)))
-          )
-        )
+  updateAvatar(uid: string, file: File): Observable<string> {
+    return this.uploadPhoto(file).pipe(
+      switchMap((fileName) =>
+        from(
+          this.angularFirestore
+            .collection('users')
+            .doc(uid)
+            .update({ photo: fileName })
+        ).pipe(switchMap(() => this.getUserAvatar(fileName)))
       )
     );
   }

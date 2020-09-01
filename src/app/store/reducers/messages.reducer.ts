@@ -37,6 +37,7 @@ export function reducer(state: State, action: Action) {
 }
 
 export const selectState = (state: AppState) => state.messages;
+
 export const selectMessages = createSelector(
   selectState,
   (state) => state.messages

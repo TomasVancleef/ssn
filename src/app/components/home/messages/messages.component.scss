@@ -5,7 +5,7 @@
 }
 
 section {
-  height: calc(100vh - 50px);
+  height: calc(100% - 50px);
 }
 
 cdk-virtual-scroll-viewport {
@@ -14,11 +14,11 @@ cdk-virtual-scroll-viewport {
 }
 
 .pre-loading {
-  height: 70vh;
+  height: 100%;
 }
 
 .spinner-container {
-  height: 70vh;
+  height: 100%;
 }
 
 img {

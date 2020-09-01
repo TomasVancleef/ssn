@@ -10,13 +10,15 @@ export const loadMessagesSuccess = createAction(
   props<{ messages: Message[] }>()
 );
 
+export const loadMessagesFailed = createAction('load messages failed');
+
 export const sendMessage = createAction(
   'send message',
   props<{ message: Message }>()
 );
 export const sendMessageSuccess = createAction(
   'send message success',
-  props<{ message: Message }>()
+  props<{ uid: string; message: Message }>()
 );
 
 export const markMessagesAsViewed = createAction(

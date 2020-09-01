@@ -1,14 +1,14 @@
 {
   "targets": {
-    "cosmo-chat-bf694": {
+    "smart-social-network": {
       "hosting": {
         "ssn": [
-          "cosmo-chat-bf694"
+          "smart-social-network"
         ]
       }
     }
   },
   "projects": {
-    "default": "cosmo-chat-bf694"
+    "default": "smart-social-network"
   }
 }

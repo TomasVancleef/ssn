@@ -12,7 +12,8 @@ import { Store } from '@ngrx/store';
 import * as MessagesActions from '../../../store/actions/messages.actions';
 import * as fromAuth from '../../../store/reducers/auth.reducer';
 import * as fromMessages from '../../../store/reducers/messages.reducer';
-import { take, delay } from 'rxjs/operators';
+import * as fromChats from '../../../store/reducers/chats.reducer';
+import { take, delay, map } from 'rxjs/operators';
 import { Observable, Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firestore } from 'firebase/app';
@@ -27,16 +28,10 @@ import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 export class MessagesComponent implements OnInit, AfterViewChecked, OnDestroy {
   @ViewChild('scroll') scroll: CdkVirtualScrollViewport;
 
-  interlocutorUid: string;
   messageText = '';
-  messages$: Observable<Message[]>;
-  messagesLoading$: Observable<boolean>;
-  uid: string;
-  paramsSubscription: Subscription;
+  messagesState$: Observable<fromMessages.State>;
   scrolledSubscription: Subscription;
   scrolled = false;
-  messagesEmpty: Observable<boolean>;
-  viewedSubscription: Subscription;
 
   constructor(
     private store: Store,
@@ -45,30 +40,11 @@ export class MessagesComponent implements OnInit, AfterViewChecked, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.paramsSubscription = this.route.params.subscribe(
-      (params) => (this.interlocutorUid = params['id'])
-    );
+    this.messagesState$ = this.store.select(fromMessages.selectState);
 
-    this.messagesLoading$ = this.store.select(
-      fromMessages.selectMessagesLoading
-    );
-
-    this.messagesEmpty = this.store.select(fromMessages.selectMessagesEmpty);
-    this.messages$ = this.store.select(fromMessages.selectMessages);
-
-    this.scrolledSubscription = this.messages$.subscribe(
+    this.scrolledSubscription = this.messagesState$.subscribe(
       () => (this.scrolled = false)
     );
-
-    this.viewedSubscription = this.messages$
-      .pipe(delay(2000))
-      .subscribe((messages) => {
-        this.store.dispatch(
-          MessagesActions.markMessagesAsViewed({
-            interlocutorUid: this.interlocutorUid,
-          })
-        );
-      });
   }
 
   ngAfterViewChecked() {
@@ -98,8 +74,8 @@ export class MessagesComponent implements OnInit, AfterViewChecked, OnDestroy {
         message: {
           id: '',
           my: true,
-          uid: this.uid,
-          interlocutorUid: this.interlocutorUid,
+          uid: '',
+          interlocutorUid: this.route.snapshot.params['id'],
           text: f.value.message,
           date: Timestamp.now(),
           viewed: false,
@@ -111,8 +87,6 @@ export class MessagesComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   ngOnDestroy(): void {
     this.scrolledSubscription.unsubscribe();
-    this.paramsSubscription.unsubscribe();
-    this.viewedSubscription.unsubscribe();
   }
 
   @HostListener('mousewheel', ['$event']) onMousewheel(event) {

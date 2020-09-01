@@ -1,11 +1,10 @@
 import { Store } from '@ngrx/store';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { ImageService } from './../image/image.service';
-import { switchMap, filter, map, take, catchError } from 'rxjs/operators';
+import { switchMap, filter, map, take } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { Observable, from, of } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { Observable, of, combineLatest, from } from 'rxjs';
 import * as fromAuth from '../../store/reducers/auth.reducer';
 import { User } from 'src/app/model/user';
 
@@ -17,7 +16,6 @@ export class AuthService {
     private angularFireAuth: AngularFireAuth,
     private imageService: ImageService,
     private angularFirestore: AngularFirestore,
-    private matSnackBar: MatSnackBar,
     private store: Store
   ) {}
 
@@ -25,17 +23,14 @@ export class AuthService {
     return from(
       this.angularFireAuth
         .signInWithEmailAndPassword(email, password)
-        .then((authResult) => ({
-          uid: authResult.user.uid,
-          name: '',
-          email: authResult.user.email,
-          photo: '',
-        }))
-        .catch((e) => {
-          this.matSnackBar.open(e.message, '', {
-            duration: 3000,
-          });
-          return e;
+        .then((authResult) => {
+          return {
+            uid: authResult.user.uid,
+            name: '',
+            email: authResult.user.email,
+            photo: '',
+            verified: authResult.user.emailVerified,
+          };
         })
     );
   }
@@ -44,30 +39,49 @@ export class AuthService {
     return from(this.angularFireAuth.signOut());
   }
 
+  sendEmailVerify() {
+    return this.angularFireAuth.user.pipe(
+      take(1),
+      filter((user) => user != null),
+      map((user) =>
+        user.sendEmailVerification({
+          url: 'https://smart-social-network.web.app',
+        })
+      )
+    );
+  }
+
   registration(
     name: string,
     email: string,
     password: string
-  ): Observable<User> {
+  ): Observable<[void, User]> {
     return from(
       this.angularFireAuth.createUserWithEmailAndPassword(email, password)
     ).pipe(
       switchMap((createUserResult) =>
-        from(
-          this.angularFirestore
-            .collection('users')
-            .doc(createUserResult.user.uid)
-            .set({
-              name: name,
-              photo: this.imageService.getDefaultAvatar(),
+        combineLatest(
+          from(
+            createUserResult.user.sendEmailVerification({
+              url: 'https://smart-social-network.web.app',
             })
-        ).pipe(
-          map(() => ({
-            uid: createUserResult.user.uid,
-            name: '',
-            email: createUserResult.user.email,
-            photo: '',
-          }))
+          ),
+          from(
+            this.angularFirestore
+              .collection('users')
+              .doc(createUserResult.user.uid)
+              .set({
+                name: name,
+                photo: this.imageService.getDefaultAvatar(),
+              })
+          ).pipe(
+            map(() => ({
+              uid: createUserResult.user.uid,
+              name: '',
+              email: createUserResult.user.email,
+              photo: '',
+            }))
+          )
         )
       )
     );
@@ -102,6 +116,7 @@ export class AuthService {
             name: '',
             email: '',
             photo: '',
+            verified: false,
           });
         } else {
           let user = {
@@ -109,6 +124,7 @@ export class AuthService {
             name: '',
             email: fireUser.email,
             photo: '',
+            verified: fireUser.emailVerified,
           };
 
           return this.angularFirestore

@@ -11,7 +11,7 @@ import {
 } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { map } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -31,26 +31,16 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    return this.authService.currentUser().pipe(
-      map((user) => {
-        {
-          let loggedIn = user.uid != '';
-          if (!loggedIn) {
-            this.router.navigate(['login']);
-          }
-          return loggedIn;
+    return this.store.select(fromAuth.selectAuth).pipe(
+      filter((auth) => !auth.loggingIn),
+      map((auth) => {
+        let loggedIn = auth.user.uid != '' && auth.user.verified;
+        if (!loggedIn) {
+          //this.router.navigate(['/login']);
         }
+        return loggedIn;
       })
     );
-    // return this.store.select(fromAuth.selectAuth).pipe(
-    //   map((auth) => {
-    //     let loggedIn = auth.user.uid != '';
-    //     if (!loggedIn && !auth.loggingIn) {
-    //       this.router.navigate(['login']);
-    //     }
-    //     return loggedIn;
-    //   })
-    // );
   }
 
   canActivateChild(
@@ -61,26 +51,15 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     | UrlTree
     | Observable<boolean | UrlTree>
     | Promise<boolean | UrlTree> {
-    return this.authService.currentUser().pipe(
-      map((user) => {
-        {
-          let loggedIn = user != null;
-          if (!loggedIn) {
-            this.router.navigate(['login']);
-          }
-          return loggedIn;
+    return this.store.select(fromAuth.selectAuth).pipe(
+      filter((auth) => !auth.loggingIn),
+      map((auth) => {
+        let loggedIn = auth.user.uid != '' && auth.user.verified;
+        if (!loggedIn) {
+          //this.router.navigate(['/login']);
         }
+        return loggedIn;
       })
     );
-
-    // return this.store.select(fromAuth.selectAuth).pipe(
-    //   map((auth) => {
-    //     let loggedIn = auth.user.uid != '';
-    //     if (!loggedIn && !auth.loggingIn) {
-    //       this.router.navigate(['login']);
-    //     }
-    //     return loggedIn;
-    //   })
-    // );
   }
 }

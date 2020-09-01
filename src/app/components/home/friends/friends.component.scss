@@ -1,11 +1,15 @@
 section {
-  height: calc(100vh - 50px);
+  height: 100%;
 }
 
 mat-nav-list {
-  height: calc(100vh - 120px - 50px);
+  height: 100%;
 }
 
 div {
   width: 100%;
+}
+
+cdk-virtual-scroll-viewport {
+  height: 100%;
 }

@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MessagesService } from './../../services/messages/messages.service';
 import {
@@ -7,6 +8,8 @@ import {
   concatMap,
   filter,
   delay,
+  take,
+  catchError,
 } from 'rxjs/operators';
 import { createEffect, Actions, ofType, act } from '@ngrx/effects';
 import { Injectable } from '@angular/core';
@@ -22,7 +25,8 @@ export class MessagesEffects {
   constructor(
     private actions$: Actions,
     private messagesService: MessagesService,
-    private store: Store
+    private store: Store,
+    private router: Router
   ) {}
 
   routeLoadMessages$ = createEffect(() =>
@@ -39,6 +43,45 @@ export class MessagesEffects {
         })
       )
     )
+  );
+
+  loadMessages$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(MessagesActions.loadMessages),
+
+      switchMap((action) =>
+        this.store.select(fromAuth.selectAuthUserUid).pipe(
+          filter((uid) => uid != ''),
+          switchMap((uid) =>
+            this.messagesService.loadMessages(uid, action.interlocutorUid).pipe(
+              map((messages) => {
+                return MessagesActions.loadMessagesSuccess({
+                  messages: messages,
+                });
+              }),
+              catchError((e) =>
+                of(e).pipe(
+                  map(() => {
+                    return MessagesActions.loadMessagesFailed();
+                  })
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  );
+
+  loadMessagesFailed$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(MessagesActions.loadMessagesFailed),
+        map((action) => {
+          this.router.navigate(['/login']);
+        })
+      ),
+    { dispatch: false }
   );
 
   routeMarkMessagesAsViewed$ = createEffect(() =>
@@ -62,37 +105,19 @@ export class MessagesEffects {
     )
   );
 
-  loadMessages$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(MessagesActions.loadMessages),
-      switchMap((action) =>
-        this.store.select(fromAuth.selectAuthUserUid).pipe(
-          filter((uid) => uid != ''),
-          switchMap((uid) =>
-            this.messagesService.loadMessages(uid, action.interlocutorUid).pipe(
-              map((messages) => {
-                return MessagesActions.loadMessagesSuccess({
-                  messages: messages,
-                });
-              })
-            )
-          )
-        )
-      )
-    )
-  );
-
   sendMessage$ = createEffect(() =>
     this.actions$.pipe(
       ofType(MessagesActions.sendMessage),
-      switchMap((action) => {
-        return this.messagesService
-          .sendMessage(action.message)
-          .pipe(
-            map((message) =>
-              MessagesActions.sendMessageSuccess({ message: message })
-            )
-          );
+      withLatestFrom(this.store.select(fromAuth.selectAuthUserUid)),
+      switchMap(([action, uid]) => {
+        return this.messagesService.sendMessage(uid, action.message).pipe(
+          map((message) =>
+            MessagesActions.sendMessageSuccess({
+              uid,
+              message: message,
+            })
+          )
+        );
       })
     )
   );
@@ -100,16 +125,13 @@ export class MessagesEffects {
   markMessagesAsViewed$ = createEffect(() =>
     this.actions$.pipe(
       ofType(MessagesActions.markMessagesAsViewed),
-      switchMap((action) =>
-        this.store.select(fromAuth.selectAuthUserUid).pipe(
-          filter((uid) => uid != ''),
-          switchMap((uid) => {
-            return this.messagesService
-              .markMessagesAsViewed(uid, action.interlocutorUid)
-              .pipe(map(() => MessagesActions.markMessagesAsViewedSuccess()));
-          })
-        )
-      )
+      withLatestFrom(this.store.select(fromAuth.selectAuthUserUid)),
+      filter(([action, uid]) => uid != ''),
+      switchMap(([action, uid]) => {
+        return this.messagesService
+          .markMessagesAsViewed(uid, action.interlocutorUid)
+          .pipe(map(() => MessagesActions.markMessagesAsViewedSuccess()));
+      })
     )
   );
 }

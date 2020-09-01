@@ -15,52 +15,48 @@ export class ChatsService {
   ) {}
 
   loadChats(uid: string): Observable<Chat[]> {
-    return of(uid).pipe(
-      filter(() => uid != ''),
-      switchMap(() =>
-        this.angularFirestore
-          .collection('users')
-          .doc(uid)
-          .collection('chats', (ref) => ref.orderBy('date', 'desc'))
-          .snapshotChanges()
-          .pipe(
-            switchMap((docs) => {
-              if (docs.length == 0) {
-                return of([]);
-              } else {
-                return forkJoin(
-                  docs.map((doc) => {
-                    let docData = doc.payload.doc.data();
-                    return this.angularFirestore
-                      .collection('users')
-                      .doc(docData['interlocutorsUid'])
-                      .get()
-                      .pipe(
-                        switchMap((interlocutorsData) =>
-                          this.imageService
-                            .getUserAvatar(interlocutorsData.data()['photo'])
-                            .pipe(
-                              map((ref) => ({
-                                interlocutorUid: docData['interlocutorsUid'],
-                                interlocutorName: interlocutorsData.data()[
-                                  'name'
-                                ],
-                                lastMessage: docData['text'],
-                                lastMessageDate: docData['date'],
-                                lastMessageMy: docData['my'],
-                                photo: ref,
-                                viewed: docData['viewed'],
-                              }))
-                            )
+    if (uid == '') {
+      return of([]);
+    }
+    return this.angularFirestore
+      .collection('users')
+      .doc(uid)
+      .collection('chats', (ref) => ref.orderBy('date', 'desc'))
+      .snapshotChanges()
+      .pipe(
+        switchMap((docs) => {
+          if (docs.length == 0) {
+            return of([]);
+          } else {
+            return forkJoin(
+              docs.map((doc) => {
+                let docData = doc.payload.doc.data();
+                return this.angularFirestore
+                  .collection('users')
+                  .doc(docData['interlocutorsUid'])
+                  .get()
+                  .pipe(
+                    switchMap((interlocutorsData) =>
+                      this.imageService
+                        .getUserAvatar(interlocutorsData.data()['photo'])
+                        .pipe(
+                          map((ref) => ({
+                            interlocutorUid: docData['interlocutorsUid'],
+                            interlocutorName: interlocutorsData.data()['name'],
+                            lastMessage: docData['text'],
+                            lastMessageDate: docData['date'],
+                            lastMessageMy: docData['my'],
+                            photo: ref,
+                            viewed: docData['viewed'],
+                          }))
                         )
-                      );
-                  })
-                );
-              }
-            })
-          )
-      )
-    );
+                    )
+                  );
+              })
+            );
+          }
+        })
+      );
   }
 
   getUnviewedMessagesNumber(uid: string): Observable<number> {

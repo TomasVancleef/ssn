@@ -18,18 +18,23 @@ export class ProfileService {
     return this.angularFirestore
       .collection('users')
       .doc(uid)
-      .valueChanges()
+      .snapshotChanges()
       .pipe(
-        switchMap((user) =>
-          this.imageService.getUserAvatar(user['photo']).pipe(
-            map((photoRef) => ({
-              uid: uid,
-              name: user['name'],
-              photo: photoRef,
-              birthday: user['birthday'],
-            }))
-          )
-        )
+        switchMap((user) => {
+          if (!user.payload.exists) {
+            throw 'no user';
+          }
+          return this.imageService
+            .getUserAvatar(user.payload.data()['photo'])
+            .pipe(
+              map((photoRef) => ({
+                uid: uid,
+                name: user.payload.data()['name'],
+                photo: photoRef,
+                birthday: user.payload.data()['birthday'],
+              }))
+            );
+        })
       );
   }
 }

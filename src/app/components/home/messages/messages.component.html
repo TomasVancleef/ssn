@@ -1,4 +1,4 @@
-<section fxFlex fxLayout="column">
+<section fxLayout="column">
   <mat-toolbar class="header" color="primary">
     <button pressed mat-icon-button (click)="toChats()">
       <mat-icon>keyboard_backspace</mat-icon>
@@ -9,15 +9,14 @@
 
   <div
     class="spinner-container"
-    fxFlex
-    *ngIf="messagesLoading$ | async"
+    *ngIf="(messagesState$ | async).loading"
     fxLayoutAlign="center center"
   >
     <mat-spinner></mat-spinner>
   </div>
   <div
     class="pre-loading"
-    *ngIf="messagesEmpty | async"
+    *ngIf="(messagesState$ | async).empty"
     fxLayoutAlign="center center"
   >
     <h1>У Вас пока нет сообщений</h1>
@@ -29,7 +28,7 @@
     fxLayout="column"
     fxLayoutAlign="center center"
   >
-    <div *cdkVirtualFor="let message of messages$ | async">
+    <div *cdkVirtualFor="let message of (messagesState$ | async).messages">
       <app-message [message]="message"></app-message>
     </div>
   </cdk-virtual-scroll-viewport>
